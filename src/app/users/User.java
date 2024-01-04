@@ -24,8 +24,8 @@ public class User extends GeneralUser {
     private final int age;
     private final String city;
     private final MyConst.UserType type;
-    private final HomePage homePage = new HomePage();
-    private final LikedContentPage likedContentPage = new LikedContentPage();
+    private final HomePage homePage = new HomePage(this);
+    private final LikedContentPage likedContentPage = new LikedContentPage(this);
     private String lastCommand;
     private boolean connected = true;
     private final ArrayList<Playlist> playlists = new ArrayList<>();
@@ -301,8 +301,6 @@ public class User extends GeneralUser {
         this.city = city;
         this.age = age;
         this.type = MyConst.UserType.USER;
-        homePage.setOwner(this);
-        likedContentPage.setOwner(this);
         super.setCurrentPage(homePage);
     }
 

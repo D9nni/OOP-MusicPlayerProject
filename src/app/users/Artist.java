@@ -1,5 +1,6 @@
 package app.users;
 
+import app.analytics.monetization.ArtistIncome;
 import app.analytics.wrapped.ArtistStats;
 import app.audio.Album;
 import app.audio.Song;
@@ -23,10 +24,11 @@ import java.util.ArrayList;
 @Getter
 public class Artist extends GeneralUser {
     private final ArrayList<Album> albums = new ArrayList<>();
-    private final ArtistPage artistPage = new ArtistPage();
+    private final ArtistPage artistPage = new ArtistPage(this);
     private final ArrayList<ArtistEvent> artistEvents = new ArrayList<>();
     private final ArrayList<Merch> merch = new ArrayList<>();
     private final ArtistStats stats = new ArtistStats(this);
+    private final ArtistIncome income = new ArtistIncome(this);
 
     /**
      * Calculate total likes.
@@ -271,7 +273,6 @@ public class Artist extends GeneralUser {
 
     public Artist(final String username, final String city, final int age) {
         super(username, city, age, MyConst.UserType.ARTIST);
-        artistPage.setOwner(this);
         super.setCurrentPage(artistPage);
     }
 
@@ -324,4 +325,5 @@ public class Artist extends GeneralUser {
         }
         return canBeDeleted;
     }
+
 }

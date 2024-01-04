@@ -8,10 +8,11 @@ import app.users.User;
 import java.util.ArrayList;
 
 public final class LikedContentPage implements Page {
-    private User owner;
+    private final User owner;
 
-    public LikedContentPage() {
+    public LikedContentPage(User owner) {
 
+        this.owner = owner;
     }
 
     @Override
@@ -42,10 +43,5 @@ public final class LikedContentPage implements Page {
         stringBuilder.append("]");
         objectNode.put("message", stringBuilder.toString());
 
-    }
-
-    @Override
-    public void setOwner(final GeneralUser owner) {
-        this.owner = (User) owner;
     }
 }

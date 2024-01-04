@@ -22,6 +22,7 @@ public class Album extends AudioCollection {
         songs = new ArrayList<>();
         for (SongInput songInput : songsInput) {
             Song song = new Song(songInput);
+            //TODO: MODIFICA INCAT SA AI AICI ACEEASI INSTANTA DIN LIBRARY CA SONG
             songs.add(song);
         }
     }

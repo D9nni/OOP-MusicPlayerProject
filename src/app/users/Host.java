@@ -1,7 +1,6 @@
 package app.users;
 
 import app.analytics.wrapped.HostStats;
-import app.analytics.wrapped.UserStats;
 import app.audio.AudioFile;
 import app.audio.Library;
 import app.audio.Podcast;
@@ -21,13 +20,12 @@ import java.util.ArrayList;
 public class Host extends GeneralUser {
     private final ArrayList<Podcast> podcasts = new ArrayList<>();
     private final ArrayList<Announcement> announcements = new ArrayList<>();
-    private final HostPage hostPage = new HostPage();
-    private final HostStats stats = new HostStats();
+    private final HostPage hostPage = new HostPage(this);
+    private final HostStats stats = new HostStats(this);
 
 
     public Host(final String username, final String city, final int age) {
         super(username, city, age, MyConst.UserType.HOST);
-        hostPage.setOwner(this);
         super.setCurrentPage(hostPage);
     }
 

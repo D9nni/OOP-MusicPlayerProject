@@ -10,9 +10,4 @@ public interface Page {
      */
     void printPage(ObjectNode objectNode);
 
-    /**
-     * Set the page's owner.
-     * @param owner the user who owns the page
-     */
-    void setOwner(GeneralUser owner);
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public final class Command {
     private String command;
     private String username;
-    private int timestamp;
+    private int timestamp = -1;
     private String type;
     private Filters filters;
     private String artist;

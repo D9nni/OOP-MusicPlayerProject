@@ -9,7 +9,11 @@ import app.users.host_stuff.Announcement;
 import java.util.ArrayList;
 
 public final class HostPage implements Page {
-    private Host owner;
+    private final Host owner;
+
+    public HostPage(Host owner) {
+        this.owner = owner;
+    }
 
     @Override
     public void printPage(final ObjectNode objectNode) {
@@ -38,11 +42,6 @@ public final class HostPage implements Page {
 
         objectNode.put("message", stringBuilder.toString());
 
-    }
-
-    @Override
-    public void setOwner(final GeneralUser owner) {
-        this.owner = (Host) owner;
     }
 
 }

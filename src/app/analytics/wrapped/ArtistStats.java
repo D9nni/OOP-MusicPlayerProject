@@ -37,7 +37,6 @@ public class ArtistStats implements Wrapped {
             objectNode2.put(album.getName(), albumsResults.get(album));
         }
         objectNode1.set("topAlbums", objectNode2);
-        //todo: top songs
 
         objectNode2 = objectMapper.createObjectNode();
         HashMap<Song, Integer> allSongsHashMap = new HashMap<>();
@@ -78,6 +77,9 @@ public class ArtistStats implements Wrapped {
         for (K elem : map2.keySet()) {
             map1.put(elem, map1.getOrDefault(elem, 0) + map2.get(elem));
         }
+    }
+    public boolean hasFans() {
+        return !fans.isEmpty();
     }
 
 }

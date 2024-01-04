@@ -33,7 +33,7 @@ public final class CommandManager {
 
     /**
      * Get the unique instance of Singleton class CommandManager
-     * @param commandArrayList list of app.commands to run
+     * @param commandArrayList list of commands to run
      * @param library          application's library
      * @param outputs          for writing output
      * @param objectMapper     for output
@@ -50,7 +50,7 @@ public final class CommandManager {
     }
 
     /**
-     * Destroy the CommandManager single instance after executing app.commands
+     * Destroy the CommandManager single instance after executing commands
      */
     private void destroyInstance() {
         instance = null;
@@ -116,6 +116,7 @@ public final class CommandManager {
                 System.out.println("Invalid command " + cmd.getCommand());
             }
         }
+        outputs.add(library.endProgram());
         destroyInstance();
     }
     private boolean userCommandsSwitch(final User user, final Command cmd,

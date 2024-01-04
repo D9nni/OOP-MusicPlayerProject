@@ -136,7 +136,7 @@ public final class Library {
     }
 
     /**
-     * Get the normal app.users online.
+     * Get the normal users online.
      * @param objectNode for output containing list of usernames
      */
     public void getOnlineUsers(final ObjectNode objectNode) {
@@ -151,7 +151,7 @@ public final class Library {
     }
 
     /**
-     * Get a list of all app.users having any type.
+     * Get a list of all users having any type.
      * @param objectNode for output containing list of usernames
      */
     public void getAllUsers(final ObjectNode objectNode) {
@@ -167,6 +167,20 @@ public final class Library {
             allUsers.add(host.getUsername());
         }
         objectNode.set("result", allUsers);
+    }
+
+    public ObjectNode endProgram() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        ObjectNode objectNode1 = objectMapper.createObjectNode();
+        for (Artist artist : artists) {
+            if(artist.getStats().hasFans()) {
+                objectNode1.set(artist.getUsername(), artist.getIncome().toObjectNode());
+            }
+        }
+        objectNode.put("command", "endProgram");
+        objectNode.set("result", objectNode1);
+        return objectNode;
     }
 
     /**
@@ -229,7 +243,7 @@ public final class Library {
         return null;
     }
     /**
-     * Add a user to app.users list.
+     * Add a user to users list.
      * @param user user to be added
      */
     public void addUser(final User user) {
