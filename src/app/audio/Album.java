@@ -28,11 +28,13 @@ public class Album extends AudioCollection {
 
     /**
      * Check if album contains a song
-     * @param songName name of a song
+     * @param song a song
      * @return true if album has a song with name equal to given name
      */
-    public boolean containsSong(final String songName) {
-        return songs.stream().anyMatch(obj -> obj.getName().equals(songName));
+    public boolean containsSong(final Song song) {
+        String songName1 = song.getName();
+        String artist1 = song.getArtist();
+        return songs.stream().anyMatch(obj -> obj.getName().equals(songName1) && obj.getArtist().equals(artist1));
     }
 
     /**

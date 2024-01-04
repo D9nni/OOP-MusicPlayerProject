@@ -211,6 +211,16 @@ public final class Admin {
         }
     }
 
+    public static void tryWrapped(final Command cmd, final ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getGeneralUser(username);
+        if (generalUser == null) {
+            objectNode.put("message", "No data to show for user " + username + ".");
+        } else {
+            generalUser.getStats().wrapped(objectNode);
+        }
+    }
+
 
     public static void setLibrary(final Library library) {
         Admin.library = library;

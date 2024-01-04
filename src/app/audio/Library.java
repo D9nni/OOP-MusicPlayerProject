@@ -202,7 +202,32 @@ public final class Library {
         }
         return null;
     }
-
+    public GeneralUser getUserOfType(final String name, final MyConst.UserType type) {
+        switch (type) {
+            case USER -> {
+                for (User user : users) {
+                    if (user.getUsername().equals(name)) {
+                        return user;
+                    }
+                }
+            }
+            case ARTIST -> {
+                for (Artist artist : artists) {
+                    if (artist.getUsername().equals(name)) {
+                        return artist;
+                    }
+                }
+            }
+            case HOST -> {
+                for (Host host : hosts) {
+                    if (host.getUsername().equals(name)) {
+                        return host;
+                    }
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Add a user to app.users list.
      * @param user user to be added

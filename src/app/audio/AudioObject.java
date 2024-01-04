@@ -22,4 +22,8 @@ public interface AudioObject {
      */
     MyConst.SourceType getType();
 
+    void incrementListened();
+
+    int getListened();
+
 }

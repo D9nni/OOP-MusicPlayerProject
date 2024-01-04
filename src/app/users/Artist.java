@@ -1,5 +1,6 @@
 package app.users;
 
+import app.analytics.wrapped.ArtistStats;
 import app.audio.Album;
 import app.audio.Song;
 import app.audio.Playlist;
@@ -25,6 +26,7 @@ public class Artist extends GeneralUser {
     private final ArtistPage artistPage = new ArtistPage();
     private final ArrayList<ArtistEvent> artistEvents = new ArrayList<>();
     private final ArrayList<Merch> merch = new ArrayList<>();
+    private final ArtistStats stats = new ArtistStats(this);
 
     /**
      * Calculate total likes.
@@ -122,8 +124,8 @@ public class Artist extends GeneralUser {
                             }
                             break;
                         case SONG:
-                            String songName = user.getPlayer().getTrack().getName();
-                            if (removedAlbum.containsSong(songName)) {
+                            Song song = (Song) user.getPlayer().getTrack();
+                            if (removedAlbum.containsSong(song)) {
                                 canBeRemoved = false;
                                 break;
                             }
@@ -255,12 +257,12 @@ public class Artist extends GeneralUser {
 
     /**
      * Check if artist has a song with this name in his albums.
-     * @param songName the name of song
+     * @param song a song
      * @return true if he has
      */
-    public boolean hasSong(final String songName) {
+    public boolean hasSong(final Song song) {
         for (Album album : albums) {
-            if (album.containsSong(songName)) {
+            if (album.containsSong(song)) {
                 return true;
             }
         }
@@ -303,7 +305,7 @@ public class Artist extends GeneralUser {
                     if (user.getPlayer().getTrack().getType() == MyConst.SourceType.SONG) {
                         Song track = (Song) user.getPlayer().getTrack();
                         //check if someone is playing one of artist's songs
-                        if (this.hasSong(track.getName())) {
+                        if (this.hasSong(track)) {
                             canBeDeleted = false;
                             break;
                         }

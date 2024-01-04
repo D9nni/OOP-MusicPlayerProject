@@ -1,5 +1,6 @@
 package app.users;
 
+import app.analytics.wrapped.UserStats;
 import app.audio.Library;
 import app.commands.Command;
 import app.audio.AudioObject;
@@ -30,8 +31,9 @@ public class User extends GeneralUser {
     private final ArrayList<Playlist> playlists = new ArrayList<>();
     private final ArrayList<Playlist> followedPlaylists = new ArrayList<>();
     private final ArrayList<Song> likedSongs = new ArrayList<>();
-    private final SearchBar searchBar = new SearchBar();
-    private final Player player = new Player();
+    private final SearchBar searchBar = new SearchBar(this);
+    private final Player player = new Player(this);
+    private final UserStats stats = new UserStats(this);
 
 
     private boolean containsPlaylist(final String name) {
@@ -302,8 +304,6 @@ public class User extends GeneralUser {
         homePage.setOwner(this);
         likedContentPage.setOwner(this);
         super.setCurrentPage(homePage);
-        player.setUser(this);
-        searchBar.setUser(this);
     }
 
     /**

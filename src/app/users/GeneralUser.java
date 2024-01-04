@@ -1,5 +1,6 @@
 package app.users;
 
+import app.analytics.wrapped.Wrapped;
 import app.audio.Library;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.commands.Command;
@@ -8,7 +9,7 @@ import app.pages.Page;
 import app.utils.MyConst;
 
 @Getter
-public class GeneralUser {
+public abstract class GeneralUser {
     private final String username;
     private final int age;
     private final String city;
@@ -48,7 +49,7 @@ public class GeneralUser {
     }
 
     /**
-     * Create app.users factory. Checks the desired user type then creates it.
+     * Create users factory. Checks the desired user type then creates it.
      * @param library for updating the library
      * @param cmd for data
      * @return true if it created a new user
@@ -94,5 +95,5 @@ public class GeneralUser {
     public void setCurrentPage(final Page currentPage) {
         this.currentPage = currentPage;
     }
-
+    public abstract Wrapped getStats();
 }

@@ -25,15 +25,16 @@ public class SearchBar {
     private ArrayList<AudioObject> audioSearchResults = null;
     private ArrayList<GeneralUser> userSearchResults = null;
     private int numberOfResults = 0;
-    private User user;
+    private final User user;
 
     @Getter
     private AudioObject selectedAudio = null;
     @Getter
     private GeneralUser selectedUser = null;
 
-    public SearchBar() {
+    public SearchBar(User user) {
 
+        this.user = user;
     }
 
     /**
@@ -209,11 +210,4 @@ public class SearchBar {
         }
     }
 
-    /**
-     * Set the searchBar's user (owner).
-     * @param user the user
-     */
-    public void setUser(final User user) {
-        this.user = user;
-    }
 }

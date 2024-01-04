@@ -6,6 +6,7 @@ import app.utils.MyConst;
 import java.util.ArrayList;
 
 public abstract class AudioCollection implements AudioObject {
+    private int listened = 0;
     /**
      *
      * @return name of AudioCollection
@@ -33,4 +34,13 @@ public abstract class AudioCollection implements AudioObject {
      */
     public abstract ArrayList<AudioFile> getTracks();
 
+    @Override
+    public void incrementListened() {
+        listened++;
+    }
+
+    @Override
+    public int getListened() {
+        return listened;
+    }
 }

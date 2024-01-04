@@ -1,5 +1,6 @@
 package app.commands;
 
+import app.analytics.wrapped.UserStats;
 import app.audio.Library;
 import app.users.GeneralUser;
 import app.users.User;
@@ -59,6 +60,7 @@ public final class CommandManager {
      * Main command that checks which command is going to be run
      */
     public void executeCommands() {
+        UserStats.setLibrary(library);
         for (Command cmd : commandArrayList) {
 
             ObjectNode objectNode = objectMapper.createObjectNode();
@@ -86,6 +88,7 @@ public final class CommandManager {
                     case "addPodcast" -> Admin.tryAddPodcast(cmd, objectNode);
                     case "removePodcast" -> Admin.tryRemovePodcast(cmd, objectNode);
                     case "removeAlbum" -> Admin.tryRemoveAlbum(cmd, objectNode);
+                    case "wrapped" -> Admin.tryWrapped(cmd, objectNode);
                     // for app.commands that depend on user
                     default -> {
                         GeneralUser genUser = library.getGeneralUser(cmd.getUsername());

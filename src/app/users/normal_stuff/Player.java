@@ -23,7 +23,7 @@ public class Player {
     private AudioObject source = null;
     @Getter
     private MyConst.SourceType sourceType;
-    private User user;
+    private final User user;
     @Getter
     private AudioFile track = null;
     private ArrayList<AudioFile> trackList;
@@ -74,6 +74,7 @@ public class Player {
         }
         if (track == null && trackId != -1 && !trackList.isEmpty()) {
             track = trackList.get(trackId);
+            user.getStats().updateStats(track, source);
         } else if (track == null) {
             return;
         }
@@ -221,7 +222,9 @@ public class Player {
                 }
 
             } else if (sourceType == MyConst.SourceType.SONG) {
+
                 track = (AudioFile) source;
+                user.getStats().updateStats(track, source);
                 trackList = null;
                 size = 1;
             }
@@ -534,35 +537,44 @@ public class Player {
         objectNode.set("stats", statsNode);
     }
 
-    public Player() {
+    public Player(User user) {
+        this.user = user;
     }
 
     private Integer generateNextId(final int id) {
+        int nextId = -1;
         if (shuffle) {
             int i = shuffleIndexes.indexOf(id);
             if (i + 1 < size) {
-                return shuffleIndexes.get(i + 1);
+                nextId = shuffleIndexes.get(i + 1);
             }
         } else {
             if (id + 1 < size) {
-                return id + 1;
+                nextId = id + 1;
             }
         }
-        return -1;
+        if(nextId != -1) {
+            user.getStats().updateStats(trackList.get(nextId), source);
+        }
+        return nextId;
     }
 
     private Integer generatePrevId(final int id) {
+        int prevId = -1;
         if (shuffle) {
             int i = shuffleIndexes.indexOf(id);
             if (i - 1 >= 0) {
-                return shuffleIndexes.get(i - 1);
+                prevId = shuffleIndexes.get(i - 1);
             }
         } else {
             if (id - 1 >= 0) {
-                return id - 1;
+                prevId = id - 1;
             }
         }
-        return -1;
+        if(prevId != -1) {
+            user.getStats().updateStats(trackList.get(prevId), source);
+        }
+        return prevId;
     }
 
     /**
@@ -582,12 +594,5 @@ public class Player {
         return null;
     }
 
-    /**
-     * Set the player's user (owner).
-     * @param user the user
-     */
-    public void setUser(final User user) {
-        this.user = user;
-    }
 }
 

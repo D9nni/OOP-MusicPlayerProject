@@ -1,5 +1,7 @@
 package app.users;
 
+import app.analytics.wrapped.HostStats;
+import app.analytics.wrapped.UserStats;
 import app.audio.AudioFile;
 import app.audio.Library;
 import app.audio.Podcast;
@@ -20,6 +22,7 @@ public class Host extends GeneralUser {
     private final ArrayList<Podcast> podcasts = new ArrayList<>();
     private final ArrayList<Announcement> announcements = new ArrayList<>();
     private final HostPage hostPage = new HostPage();
+    private final HostStats stats = new HostStats();
 
 
     public Host(final String username, final String city, final int age) {
