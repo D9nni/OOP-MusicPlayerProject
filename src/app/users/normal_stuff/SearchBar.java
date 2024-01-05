@@ -137,7 +137,7 @@ public class SearchBar {
             if (cmd.getFilters().songFitsSearch(song)) {
                 audioSearchResults.add(song);
                 if (audioSearchResults.size() == MyConst.RESULT_SIZE) {
-                    break;
+                    return;
                 }
             }
         }
@@ -149,7 +149,7 @@ public class SearchBar {
             if (cmd.getFilters().podcastFitsSearch(podcast)) {
                 audioSearchResults.add(podcast);
                 if (audioSearchResults.size() == MyConst.RESULT_SIZE) {
-                    break;
+                    return;
                 }
             }
         }
@@ -160,11 +160,10 @@ public class SearchBar {
         for (User user1 : library.getUsers()) {
             for (Playlist playlist : user1.getPlaylists()) {
                 if (cmd.getFilters().playlistFitsSearch(playlist)) {
-                    if (playlist.isVisible()) {
+                    if (playlist.isVisible() || playlist.getOwner().equals(cmd.getUsername())) {
                         audioSearchResults.add(playlist);
-                    } else {
-                        if (playlist.getOwner().equals(cmd.getUsername())) {
-                            audioSearchResults.add(playlist);
+                        if (audioSearchResults.size() == MyConst.RESULT_SIZE) {
+                            return;
                         }
                     }
                 }
@@ -179,7 +178,7 @@ public class SearchBar {
                 if (cmd.getFilters().albumFitsSearch(album)) {
                     audioSearchResults.add(album);
                     if (audioSearchResults.size() == MyConst.RESULT_SIZE) {
-                        break;
+                        return;
                     }
                 }
             }
@@ -192,7 +191,7 @@ public class SearchBar {
             if (cmd.getFilters().artistFitsSearch(artist)) {
                 userSearchResults.add(artist);
                 if (userSearchResults.size() == MyConst.RESULT_SIZE) {
-                    break;
+                    return;
                 }
             }
         }
@@ -204,7 +203,7 @@ public class SearchBar {
             if (cmd.getFilters().hostFitsSearch(host)) {
                 userSearchResults.add(host);
                 if (userSearchResults.size() == MyConst.RESULT_SIZE) {
-                    break;
+                    return;
                 }
             }
         }

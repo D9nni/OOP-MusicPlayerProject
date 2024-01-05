@@ -74,11 +74,9 @@ public class Artist extends GeneralUser {
                         + " has the same song at least twice in this album.");
             } else {
                 Album newAlbum = new Album(cmd.getName(), cmd.getUsername(),
-                        cmd.getReleaseYear(), cmd.getDescription(), cmd.getSongs());
+                        cmd.getReleaseYear(), cmd.getDescription(), cmd.getSongs(),
+                        library);
                 albums.add(newAlbum);
-                for (Song song : newAlbum.getSongs()) {
-                    library.addSong(song);
-                }
                 objectNode.put("message", cmd.getUsername()
                         + " has added new album successfully.");
             }
@@ -127,7 +125,7 @@ public class Artist extends GeneralUser {
                             break;
                         case SONG:
                             Song song = (Song) user.getPlayer().getTrack();
-                            if (removedAlbum.containsSong(song)) {
+                            if (removedAlbum.containsSongByNameAndArtist(song)) {
                                 canBeRemoved = false;
                                 break;
                             }
@@ -141,6 +139,7 @@ public class Artist extends GeneralUser {
                 objectNode.put("message", getUsername() + " can't delete this album.");
             } else {
                 albums.remove(removedAlbum);
+                stats.getRemovedAlbums().add(removedAlbum);
                 for (Song song : removedAlbum.getSongs()) {
                     song.delete(library);
                 }
@@ -264,7 +263,7 @@ public class Artist extends GeneralUser {
      */
     public boolean hasSong(final Song song) {
         for (Album album : albums) {
-            if (album.containsSong(song)) {
+            if (album.containsSongByNameAndArtist(song)) {
                 return true;
             }
         }

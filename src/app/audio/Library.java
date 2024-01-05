@@ -1,5 +1,6 @@
 package app.audio;
 
+import app.analytics.monetization.ArtistIncome;
 import lombok.Getter;
 import app.users.Artist;
 import app.users.GeneralUser;
@@ -15,6 +16,7 @@ import fileio.input.SongInput;
 import fileio.input.UserInput;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 @Getter
 public final class Library {
@@ -173,10 +175,16 @@ public final class Library {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
         ObjectNode objectNode1 = objectMapper.createObjectNode();
+        TreeSet<ArtistIncome> artistIncomes = new TreeSet<>();
         for (Artist artist : artists) {
-            if(artist.getStats().hasFans()) {
-                objectNode1.set(artist.getUsername(), artist.getIncome().toObjectNode());
+            if(artist.getStats().hasFans() || artist.getIncome().getMerchRevenue() > 0.0) {
+                artistIncomes.add(artist.getIncome());
             }
+        }
+        int ranking = 1;
+        for (ArtistIncome artistIncome : artistIncomes) {
+            artistIncome.setRanking(ranking++);
+            objectNode1.set(artistIncome.getArtist().getUsername(), artistIncome.toObjectNode());
         }
         objectNode.put("command", "endProgram");
         objectNode.set("result", objectNode1);
@@ -264,18 +272,6 @@ public final class Library {
      */
     public void addHost(final Host host) {
         hosts.add(host);
-    }
-
-    /**
-     * Add a new song in library.
-     * If there is another song with same name ignores the new song.
-     * @param song the song to be added
-     */
-    public void addSong(final Song song) {
-        if (songs.stream().anyMatch(obj -> obj.getName().equals(song.getName()))) {
-            return;
-        }
-        songs.add(song);
     }
 
 

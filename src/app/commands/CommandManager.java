@@ -62,6 +62,9 @@ public final class CommandManager {
     public void executeCommands() {
         UserStats.setLibrary(library);
         for (Command cmd : commandArrayList) {
+            if(cmd.getTimestamp() == 833559) {
+                int salut = 1; // atergeta
+            }
 
             ObjectNode objectNode = objectMapper.createObjectNode();
             objectNode.put("command", cmd.getCommand());

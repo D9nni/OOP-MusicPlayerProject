@@ -14,7 +14,8 @@ public class Album extends AudioCollection {
     private final ArrayList<Song> songs;
 
     public Album(final String name, final String artist, final int releaseYear,
-                 final String description, final ArrayList<SongInput> songsInput) {
+                 final String description, final ArrayList<SongInput> songsInput,
+                 final Library library) {
         this.name = name;
         this.artist = artist;
         this.releaseYear = releaseYear;
@@ -22,17 +23,17 @@ public class Album extends AudioCollection {
         songs = new ArrayList<>();
         for (SongInput songInput : songsInput) {
             Song song = new Song(songInput);
-            //TODO: MODIFICA INCAT SA AI AICI ACEEASI INSTANTA DIN LIBRARY CA SONG
             songs.add(song);
         }
+        library.getSongs().addAll(songs);
     }
 
     /**
      * Check if album contains a song
      * @param song a song
-     * @return true if album has a song with name equal to given name
+     * @return OLD: true if album has a song with name equal to given name
      */
-    public boolean containsSong(final Song song) {
+    public boolean containsSongByNameAndArtist(final Song song) {
         String songName1 = song.getName();
         String artist1 = song.getArtist();
         return songs.stream().anyMatch(obj -> obj.getName().equals(songName1) && obj.getArtist().equals(artist1));

@@ -217,8 +217,17 @@ public final class Admin {
         if (generalUser == null) {
             objectNode.put("message", "No data to show for user " + username + ".");
         } else {
+            for (User user : library.getUsers()) {
+                user.getPlayer().isPlaying(cmd.getTimestamp()); //update all players
+            }
             generalUser.getStats().wrapped(objectNode);
         }
+    }
+    public static void tryBuyMerch(ObjectNode objectNode) {
+
+    }
+    public static void trySeeMerch(ObjectNode objectNode) {
+
     }
 
 

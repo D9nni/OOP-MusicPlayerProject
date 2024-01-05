@@ -32,7 +32,7 @@ public final class Filters {
     public boolean songFitsSearch(final Song song) {
         boolean retval = true;
         //verify each field
-        if (name != null && !song.getName().startsWith(name)) {
+        if (name != null && !song.getName().toLowerCase().startsWith(name.toLowerCase())) {
             retval = false;
         }
         if (album != null && !album.equals(song.getAlbum())) {

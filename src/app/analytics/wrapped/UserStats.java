@@ -2,6 +2,7 @@ package app.analytics.wrapped;
 
 import app.audio.*;
 import app.users.Artist;
+import app.users.Host;
 import app.users.User;
 import app.utils.MyConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,10 @@ public class UserStats implements Wrapped {
 
     @Override
     public void wrapped(ObjectNode objectNode) {
+        if(isEmpty()) {
+            objectNode.put("message", Wrapped.noDataOutput(user.getUsername()));
+            return;
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode1 = objectMapper.createObjectNode();
         ObjectNode objectNode2 = objectMapper.createObjectNode();
@@ -44,7 +49,7 @@ public class UserStats implements Wrapped {
             genres.put(song.getGenre(), genres.getOrDefault(song.getGenre(), 0) + songs.get(song));
         }
         // merge songs with same name and same artist
-        HashMap <Song, Integer> uniqueSongs = removeDuplicates(songs);
+        HashMap <Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(songs);
         LinkedHashMap<Song, Integer> resultSongs = Wrapped.createResults(uniqueSongs, songComparator);
         for (Song song : resultSongs.keySet()) {
             objectNode2.put(song.getName(), resultSongs.get(song));
@@ -59,7 +64,9 @@ public class UserStats implements Wrapped {
         objectNode1.set("topSongs", objectNode2);
 
         objectNode2 = objectMapper.createObjectNode();
-        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(albums, albumComparator);
+
+        HashMap <Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(albums);
+        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums, albumComparator);
         for (Album album : albumsResults.keySet()) {
             objectNode2.put(album.getName(), albumsResults.get(album));
         }
@@ -75,6 +82,14 @@ public class UserStats implements Wrapped {
         objectNode.set("result", objectNode1);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return songs.isEmpty()
+                && artists.isEmpty()
+                && albums.isEmpty()
+                && episodes.isEmpty();
+    }
+
     public void updateStats(AudioFile track, AudioObject source) {
         if (track != null) {
             track.incrementListened();
@@ -86,15 +101,18 @@ public class UserStats implements Wrapped {
                         album.incrementListened();
                     } else {
                         Song song = (Song) track;
+                        boolean loop = true;
                         for (Artist artist : library.getArtists()) {
+                            if(!loop) {
+                                break;
+                            }
                             for (Album album : artist.getAlbums()) {
-                                if (album.containsSong(song)) {
-                                    albums.put(album, albums.getOrDefault(album, 0) + 1);
+                                if(album.getSongs().contains(song)) {
                                     album.incrementListened();
+                                    albums.put(album, albums.getOrDefault(album, 0) + 1);
                                 }
                             }
                         }
-
                     }
                     Song song = (Song) track;
                     songs.put(song, songs.getOrDefault(song, 0) + 1);
@@ -107,50 +125,14 @@ public class UserStats implements Wrapped {
                 case EPISODE -> {
                     Episode episode = (Episode) track;
                     episodes.put(episode, episodes.getOrDefault(episode, 0) + 1);
-                }
-            }
-        }
-    }
 
-    public void updateSource(AudioObject source) {
-        switch (source.getType()) {
-            case ALBUM -> {
-                Album album = (Album) source;
-                albums.put(album, albums.getOrDefault(album, 0) + 1);
-            }
-            case SONG -> {
-                Song song = (Song) source;
-                songs.put(song, songs.getOrDefault(song, 0) + 1);
-                artists.put(song.getArtist(), artists.getOrDefault(song.getArtist(), 0) + 1);
-                for (Artist artist : library.getArtists()) {
-                    for (Album album : artist.getAlbums()) {
-                        if (album.containsSong(song)) {
-                            albums.put(album, albums.getOrDefault(album, 0) + 1);
-                        }
+                    Podcast podcast = (Podcast) source;
+                    Host host = (Host) library.getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
+                    if (host != null) {
+                        host.getStats().addFan(user);
                     }
                 }
             }
         }
     }
-    private HashMap<Song, Integer> removeDuplicates(HashMap<Song, Integer> songs) {
-        HashMap <Song, Integer> result = new HashMap<>();
-        for (Song song : songs.keySet()) {
-            Song song1 = containsSong(result, song);
-            if(song1 != null) {
-                result.put(song1, result.get(song1) + songs.get(song));
-            } else {
-                result.put(song, songs.get(song));
-            }
-        }
-        return songs;
-    }
-    private Song containsSong(HashMap<Song, Integer> songs, Song song) {
-        for (Song song1 : songs.keySet()) {
-            if (song1.getName().equals(song.getName()) && song1.getArtist().equals(song.getArtist())) {
-                return song1;
-            }
-        }
-        return null;
-    }
-
 }

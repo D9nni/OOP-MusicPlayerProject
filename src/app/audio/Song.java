@@ -69,11 +69,11 @@ public final class Song extends AudioFile {
      * @param library to access songs list and each user's playlist
      */
     public void delete(final Library library) {
-        library.getSongs().removeIf(obj -> obj.getName().equals(this.getName()));
+        library.getSongs().remove(this);
         for (User user : library.getUsers()) {
-            user.getLikedSongs().removeIf(obj -> obj.getName().equals(this.getName()));
+            user.getLikedSongs().remove(this);
             for (Playlist playlist : user.getPlaylists()) {
-                playlist.getSongs().removeIf(obj -> obj.getName().equals(this.getName()));
+                playlist.getSongs().remove(this);
             }
         }
     }

@@ -79,7 +79,6 @@ public class Player {
             return;
         }
         trackDuration = track.getDuration();
-        int nextId = generateNextId(trackId);
         int givenTime = timestamp - startTime;
         startTime = timestamp;
         //if player repeat state is No_Repeat
@@ -89,6 +88,7 @@ public class Player {
 
             } else {
                 givenTime -= (trackDuration - trackSeek);
+                int nextId = generateNextId(trackId, true);
                 while (nextId != -1) {
                     int nextDuration = trackList.get(nextId).getDuration();
                     givenTime = givenTime - nextDuration;
@@ -97,7 +97,7 @@ public class Player {
                     if (givenTime < 0) {
                         break;
                     }
-                    nextId = generateNextId(trackId);
+                    nextId = generateNextId(trackId, true);
                 }
                 trackDuration = track.getDuration();
                 if (givenTime > 0) {
@@ -157,7 +157,7 @@ public class Player {
         int sum = 0;
         while (i != trackId && i != -1) {
             sum += trackList.get(i).getDuration();
-            i = generateNextId(i);
+            i = generateNextId(i , false); // NOT SAFE FOR WRAPPED sterge
         }
         return sum + trackSeek;
     }
@@ -435,8 +435,8 @@ public class Player {
             startTime = cmd.getTimestamp();
 
         } else if (trackSeek == 0) {
-            if (generatePrevId(trackId) != -1) {
-                trackId = generatePrevId(trackId);
+            if (generatePrevId(trackId, false) != -1) {
+                trackId = generatePrevId(trackId, true);
                 track = trackList.get(trackId);
             }
             trackSeek = 0;
@@ -541,7 +541,7 @@ public class Player {
         this.user = user;
     }
 
-    private Integer generateNextId(final int id) {
+    private Integer generateNextId(final int id, boolean update) {
         int nextId = -1;
         if (shuffle) {
             int i = shuffleIndexes.indexOf(id);
@@ -553,13 +553,13 @@ public class Player {
                 nextId = id + 1;
             }
         }
-        if(nextId != -1) {
+        if(nextId != -1 && update) {
             user.getStats().updateStats(trackList.get(nextId), source);
         }
         return nextId;
     }
 
-    private Integer generatePrevId(final int id) {
+    private Integer generatePrevId(final int id, boolean update) {
         int prevId = -1;
         if (shuffle) {
             int i = shuffleIndexes.indexOf(id);
@@ -571,7 +571,7 @@ public class Player {
                 prevId = id - 1;
             }
         }
-        if(prevId != -1) {
+        if(prevId != -1 && update) {
             user.getStats().updateStats(trackList.get(prevId), source);
         }
         return prevId;
