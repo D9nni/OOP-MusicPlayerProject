@@ -7,12 +7,14 @@ import app.users.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 public class HostStats implements Wrapped {
     private final HashSet<User> fans = new HashSet<>();
+    private final HashSet<Episode> episodes = new HashSet<>();
     private final Host host;
 
     public HostStats(Host host) {
@@ -31,10 +33,8 @@ public class HostStats implements Wrapped {
         ObjectNode objectNode1 = objectMapper.createObjectNode();
         ObjectNode objectNode2 = objectMapper.createObjectNode();
         //topEpisodes, listeners
-        HashMap<Episode, Integer> allEpisodesHashMap = new HashMap<>();
-        for(Podcast podcast : host.getPodcasts()) {
-            Wrapped.mergeMaps(allEpisodesHashMap, Wrapped.createHashMapFromArrayList(podcast.getEpisodes()));
-        }
+        HashMap<Episode, Integer> allEpisodesHashMap = Wrapped.createHashMapFromArrayList(
+                new ArrayList<>(episodes));
         LinkedHashMap<Episode, Integer> episodesResults = Wrapped.createResults(allEpisodesHashMap, episodeComparator);
 
         for (Episode episode : episodesResults.keySet()) {
@@ -50,5 +50,9 @@ public class HostStats implements Wrapped {
     @Override
     public boolean isEmpty() {
         return fans.isEmpty();
+    }
+
+    public void addEpisode (Episode episode) {
+        episodes.add(episode);
     }
 }

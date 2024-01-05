@@ -187,6 +187,7 @@ public class Player {
             }
             trackDuration = track.getDuration();
         }
+        user.getStats().updateStats(track, source);
     }
 
     /**

@@ -130,6 +130,7 @@ public class UserStats implements Wrapped {
                     Host host = (Host) library.getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
                     if (host != null) {
                         host.getStats().addFan(user);
+                        host.getStats().addEpisode(episode);
                     }
                 }
             }
