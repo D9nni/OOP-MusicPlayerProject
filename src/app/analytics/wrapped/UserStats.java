@@ -7,11 +7,14 @@ import app.users.User;
 import app.utils.MyConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Getter;
 
 import java.util.*;
 
 public class UserStats implements Wrapped {
+    @Getter
     private final HashMap<Song, Integer> songs = new HashMap<>();
+    @Getter
     private final HashMap<String, Integer> artists = new HashMap<>(); //artist may not exist as instance
     private final HashMap<Album, Integer> albums = new HashMap<>();
     private final HashMap<Episode, Integer> episodes = new HashMap<>();
@@ -31,7 +34,7 @@ public class UserStats implements Wrapped {
     @Override
     public void wrapped(ObjectNode objectNode) {
         if(isEmpty()) {
-            objectNode.put("message", Wrapped.noDataOutput(user.getUsername()));
+            objectNode.put("message", "No data to show for user " + user.getUsername() + ".");
             return;
         }
         ObjectMapper objectMapper = new ObjectMapper();
@@ -115,11 +118,13 @@ public class UserStats implements Wrapped {
                         }
                     }
                     Song song = (Song) track;
+                    user.getIncome().updatePremiumSongs(song);
                     songs.put(song, songs.getOrDefault(song, 0) + 1);
                     artists.put(song.getArtist(), artists.getOrDefault(song.getArtist(), 0) + 1);
                     Artist artist = (Artist) library.getUserOfType(song.getArtist(), MyConst.UserType.ARTIST);
                     if (artist != null) {
                         artist.getStats().addFan(user);
+                        user.getIncome().updatePremiumArtists(artist);
                     }
                 }
                 case EPISODE -> {

@@ -176,6 +176,9 @@ public final class Library {
         ObjectNode objectNode = objectMapper.createObjectNode();
         ObjectNode objectNode1 = objectMapper.createObjectNode();
         TreeSet<ArtistIncome> artistIncomes = new TreeSet<>();
+        for (User user : users) {
+            user.getIncome().paySongs();
+        }
         for (Artist artist : artists) {
             if(artist.getStats().hasFans() || artist.getIncome().getMerchRevenue() > 0.0) {
                 artistIncomes.add(artist.getIncome());
@@ -184,6 +187,7 @@ public final class Library {
         int ranking = 1;
         for (ArtistIncome artistIncome : artistIncomes) {
             artistIncome.setRanking(ranking++);
+            artistIncome.updateMostProfitableSong();
             objectNode1.set(artistIncome.getArtist().getUsername(), artistIncome.toObjectNode());
         }
         objectNode.put("command", "endProgram");

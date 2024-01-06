@@ -28,7 +28,7 @@ public class ArtistStats implements Wrapped {
     @Override
     public void wrapped(ObjectNode objectNode) {
         if(isEmpty()) {
-            objectNode.put("message", Wrapped.noDataOutput(artist.getUsername()));
+            objectNode.put("message", "No data to show for artist " + artist.getUsername() +".");
             return;
         }
 

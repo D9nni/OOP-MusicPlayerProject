@@ -11,6 +11,7 @@ public final class MyConst {
     public static final Integer REPEAT_INFINITE = 5;
     public static final Integer REPEAT_SIZE = 3;
     public static final Integer SKIP_TIME = 90;
+    public static final Double USER_CREDIT = 1000000.0;
 
     public enum UserType {
         USER,

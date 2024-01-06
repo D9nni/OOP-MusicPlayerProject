@@ -62,10 +62,6 @@ public final class CommandManager {
     public void executeCommands() {
         UserStats.setLibrary(library);
         for (Command cmd : commandArrayList) {
-            if(cmd.getTimestamp() == 833559) {
-                int salut = 1; // atergeta
-            }
-
             ObjectNode objectNode = objectMapper.createObjectNode();
             objectNode.put("command", cmd.getCommand());
             boolean valid = true;
@@ -94,6 +90,8 @@ public final class CommandManager {
                     case "wrapped" -> Admin.tryWrapped(cmd, objectNode);
                     case "buyMerch" -> Admin.tryBuyMerch(cmd, objectNode);
                     case "seeMerch" -> Admin.trySeeMerch(cmd, objectNode);
+                    case "buyPremium" -> Admin.tryBuyPremium(cmd, objectNode);
+                    case "cancelPremium" -> Admin.tryCancelPremium(cmd, objectNode);
                     // for app.commands that depend on user
                     default -> {
                         GeneralUser genUser = library.getGeneralUser(cmd.getUsername());

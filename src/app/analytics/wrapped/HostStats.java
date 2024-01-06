@@ -26,7 +26,7 @@ public class HostStats implements Wrapped {
     @Override
     public void wrapped(ObjectNode objectNode) {
         if(isEmpty()) {
-            objectNode.put("message", Wrapped.noDataOutput(host.getUsername()));
+            objectNode.put("message", "No data to show for host "+ host.getUsername()+".");
             return;
         }
         ObjectMapper objectMapper = new ObjectMapper();

@@ -79,9 +79,6 @@ public interface Wrapped {
         }
         return result;
     }
-    static String noDataOutput(String username) {
-        return "No data to show for user " + username + ".";
-    }
     private static Song containsSong(HashMap<Song, Integer> songs, Song song) {
         for (Song song1 : songs.keySet()) {
             if (song1.getName().equals(song.getName()) && song1.getArtist().equals(song.getArtist())) {

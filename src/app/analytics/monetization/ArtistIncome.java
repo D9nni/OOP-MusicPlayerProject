@@ -1,6 +1,9 @@
 package app.analytics.monetization;
 
+import app.audio.Song;
+import app.users.Admin;
 import app.users.Artist;
+import app.users.User;
 import app.users.artist_stuff.Merch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,8 +25,8 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
     public ObjectNode toObjectNode() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("merchRevenue", merchRevenue);
-        objectNode.put("songRevenue", songRevenue);
+        objectNode.put("merchRevenue", Math.round(merchRevenue*100.0)/100.0);
+        objectNode.put("songRevenue", Math.round(songRevenue*100.0)/100.0);
         objectNode.put("ranking", ranking);
         objectNode.put("mostProfitableSong", mostProfitableSong);
         return objectNode;
@@ -48,6 +51,24 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
                 return -1;
             }
 
+        }
+    }
+    public void sellSongs(Double money) {
+        songRevenue += money;
+    }
+    public void updateMostProfitableSong() {
+        Song bestSong = null;
+        Double bestRevenue = 0.0;
+        for (Song song : Admin.getLibrary().getSongs()) {
+            if(song.getArtist().equals(artist.getUsername())) {
+                if(song.getRevenue()>bestRevenue) {
+                    bestRevenue = song.getRevenue();
+                    bestSong = song;
+                }
+            }
+        }
+        if(bestSong != null) {
+            mostProfitableSong = bestSong.getName();
         }
     }
 }

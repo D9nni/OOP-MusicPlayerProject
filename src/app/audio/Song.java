@@ -11,6 +11,8 @@ public final class Song extends AudioFile {
     private final SongInput songInput;
     @Getter
     private int likes = 0;
+    @Getter
+    private Double revenue = 0.0;
 
     /**
      *
@@ -78,7 +80,9 @@ public final class Song extends AudioFile {
         }
     }
 
-
+    public void addRevenue(Double money) {
+        revenue += money;
+    }
     public String getName() {
         return songInput.getName();
     }

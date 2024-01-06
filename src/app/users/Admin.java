@@ -4,9 +4,11 @@ import app.audio.Library;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.commands.Command;
 import app.utils.MyConst;
+import lombok.Getter;
 
 
 public final class Admin {
+    @Getter
     private static Library library;
 
     private Admin() {
@@ -223,7 +225,7 @@ public final class Admin {
             generalUser.getStats().wrapped(objectNode);
         }
     }
-    public static void tryBuyMerch(Command cmd, ObjectNode objectNode) {
+    public static void tryBuyMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
         if (generalUser == null) {
@@ -233,7 +235,7 @@ public final class Admin {
             user.getIncome().buyMerch(objectNode, cmd.getName());
         }
     }
-    public static void trySeeMerch(Command cmd, ObjectNode objectNode) {
+    public static void trySeeMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
         if (generalUser == null) {
@@ -244,6 +246,26 @@ public final class Admin {
         }
     }
 
+    public static void tryBuyPremium(final Command cmd, final ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
+        if (generalUser == null) {
+            objectNode.put("message", " The username " + username + " doesn't exist.");
+        } else {
+            User user = (User) generalUser;
+            user.getIncome().buyPremium(objectNode);
+        }
+    }
+    public static void tryCancelPremium(final Command cmd, final ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
+        if (generalUser == null) {
+            objectNode.put("message", " The username " + username + " doesn't exist.");
+        } else {
+            User user = (User) generalUser;
+            user.getIncome().cancelPremium(objectNode);
+        }
+    }
 
     public static void setLibrary(final Library library) {
         Admin.library = library;
