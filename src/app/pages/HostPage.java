@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.users.GeneralUser;
 import app.users.Host;
 import app.users.host_stuff.Announcement;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
 public final class HostPage implements Page {
+    @Getter
     private final Host owner;
 
     public HostPage(Host owner) {

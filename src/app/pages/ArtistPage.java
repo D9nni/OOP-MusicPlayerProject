@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.users.Artist;
 import app.users.artist_stuff.ArtistEvent;
 import app.users.artist_stuff.Merch;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
 public final class ArtistPage implements Page {
+    @Getter
     private final Artist owner;
 
     public ArtistPage(Artist owner) {

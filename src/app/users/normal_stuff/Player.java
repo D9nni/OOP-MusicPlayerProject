@@ -117,6 +117,7 @@ public class Player {
             } else {
                 givenTime -= (trackDuration - trackSeek);
                 while (givenTime > trackDuration) {
+                    //si aici ar trebui dat update de fiecre data la track
                     givenTime -= trackDuration;
                 }
                 trackSeek = givenTime;
@@ -127,6 +128,7 @@ public class Player {
             playerSeek = playerSeek + givenTime;
             if (playerSeek >= duration) {
                 playerSeek = playerSeek % duration;
+                //aici ar trebui ca daca modulo da mai mare de 0 sa fac update la toate trackurile
             }
             setTrackSeek();
 

@@ -92,6 +92,8 @@ public final class CommandManager {
                     case "removePodcast" -> Admin.tryRemovePodcast(cmd, objectNode);
                     case "removeAlbum" -> Admin.tryRemoveAlbum(cmd, objectNode);
                     case "wrapped" -> Admin.tryWrapped(cmd, objectNode);
+                    case "buyMerch" -> Admin.tryBuyMerch(cmd, objectNode);
+                    case "seeMerch" -> Admin.trySeeMerch(cmd, objectNode);
                     // for app.commands that depend on user
                     default -> {
                         GeneralUser genUser = library.getGeneralUser(cmd.getUsername());

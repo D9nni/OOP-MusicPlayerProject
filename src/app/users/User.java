@@ -1,5 +1,6 @@
 package app.users;
 
+import app.analytics.monetization.UserIncome;
 import app.analytics.wrapped.UserStats;
 import app.audio.Library;
 import app.commands.Command;
@@ -34,6 +35,7 @@ public class User extends GeneralUser {
     private final SearchBar searchBar = new SearchBar(this);
     private final Player player = new Player(this);
     private final UserStats stats = new UserStats(this);
+    private final UserIncome income = new UserIncome(this);
 
 
     private boolean containsPlaylist(final String name) {

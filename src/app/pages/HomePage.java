@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.users.GeneralUser;
 import app.users.User;
 import app.utils.MyConst;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
 public final class HomePage implements Page {
+    @Getter
     private final User owner;
 
     public HomePage(User owner) {

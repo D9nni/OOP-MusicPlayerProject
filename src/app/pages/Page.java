@@ -9,5 +9,5 @@ public interface Page {
      * @param objectNode for output
      */
     void printPage(ObjectNode objectNode);
-
+    GeneralUser getOwner();
 }

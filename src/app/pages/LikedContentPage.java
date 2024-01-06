@@ -5,9 +5,12 @@ import app.audio.Song;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.users.GeneralUser;
 import app.users.User;
+import lombok.Getter;
+
 import java.util.ArrayList;
 
 public final class LikedContentPage implements Page {
+    @Getter
     private final User owner;
 
     public LikedContentPage(User owner) {

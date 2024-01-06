@@ -1,6 +1,7 @@
 package app.analytics.monetization;
 
 import app.users.Artist;
+import app.users.artist_stuff.Merch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
     private double merchRevenue = 0.0;
     @Getter
     private double songRevenue = 0.0;
-    private int ranking = 1;
+    private int ranking;
     private String mostProfitableSong = "N/A";
 
     public ArtistIncome(Artist artist) {
@@ -27,7 +28,9 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
         objectNode.put("mostProfitableSong", mostProfitableSong);
         return objectNode;
     }
-
+    public void sellMerch(Merch merch) {
+        merchRevenue += merch.price();
+    }
     public void setRanking(int ranking) {
         this.ranking = ranking;
     }
@@ -40,9 +43,9 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
         }
         else {
             if(diff < 0.0) {
-                return -1;
-            } else {
                 return 1;
+            } else {
+                return -1;
             }
 
         }

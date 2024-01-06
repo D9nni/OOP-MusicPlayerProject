@@ -223,11 +223,25 @@ public final class Admin {
             generalUser.getStats().wrapped(objectNode);
         }
     }
-    public static void tryBuyMerch(ObjectNode objectNode) {
-
+    public static void tryBuyMerch(Command cmd, ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
+        if (generalUser == null) {
+            objectNode.put("message", " The username " + username + " doesn't exist.");
+        } else {
+            User user = (User) generalUser;
+            user.getIncome().buyMerch(objectNode, cmd.getName());
+        }
     }
-    public static void trySeeMerch(ObjectNode objectNode) {
-
+    public static void trySeeMerch(Command cmd, ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
+        if (generalUser == null) {
+            objectNode.put("message", " The username " + username + " doesn't exist.");
+        } else {
+            User user = (User) generalUser;
+            user.getIncome().seeMerch(objectNode);
+        }
     }
 
 
