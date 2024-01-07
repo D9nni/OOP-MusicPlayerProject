@@ -92,6 +92,7 @@ public final class CommandManager {
                     case "seeMerch" -> Admin.trySeeMerch(cmd, objectNode);
                     case "buyPremium" -> Admin.tryBuyPremium(cmd, objectNode);
                     case "cancelPremium" -> Admin.tryCancelPremium(cmd, objectNode);
+                    case "adBreak" -> Admin.tryAdBreak(cmd, objectNode);
                     // for app.commands that depend on user
                     default -> {
                         GeneralUser genUser = library.getGeneralUser(cmd.getUsername());

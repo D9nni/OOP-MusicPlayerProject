@@ -267,6 +267,17 @@ public final class Admin {
         }
     }
 
+    public static void tryAdBreak(final Command cmd, final ObjectNode objectNode) {
+        String username = cmd.getUsername();
+        GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
+        if (generalUser == null) {
+            objectNode.put("message", " The username " + username + " doesn't exist.");
+        } else {
+            User user = (User) generalUser;
+            user.getPlayer().adBreak(cmd.getTimestamp(), objectNode);
+        }
+    }
+
     public static void setLibrary(final Library library) {
         Admin.library = library;
     }

@@ -2,6 +2,7 @@ package app.users.normal_stuff;
 
 
 import app.commands.Command;
+import app.users.Admin;
 import lombok.Getter;
 import app.utils.MyConst;
 import app.users.User;
@@ -595,6 +596,17 @@ public class Player {
             return (Song) track;
         }
         return null;
+    }
+    private void insertAd(){
+
+    }
+    public void adBreak(int timestamp, ObjectNode objectNode) {
+        if(!isPlaying(timestamp)) {
+            objectNode.put("message", user.getUsername() +  " is not playing any music.");
+        } else {
+            objectNode.put("message", "Ad inserted successfully.");
+            insertAd();
+        }
     }
 
 }
