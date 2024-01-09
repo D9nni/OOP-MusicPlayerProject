@@ -28,6 +28,11 @@ public final class Episode extends AudioFile {
         return MyConst.SourceType.EPISODE;
     }
 
+    @Override
+    public boolean isAd() {
+        return false;
+    }
+
     public String getName() {
         return episodeInput.getName();
     }

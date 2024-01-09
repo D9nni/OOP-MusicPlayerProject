@@ -34,4 +34,6 @@ public abstract class AudioFile implements AudioObject {
     public int getListened() {
         return listened;
     }
+
+    public abstract boolean isAd();
 }

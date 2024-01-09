@@ -65,6 +65,11 @@ public final class Song extends AudioFile {
         return MyConst.SourceType.SONG;
     }
 
+    @Override
+    public boolean isAd() {
+        return getName().equals("Ad Break");
+    }
+
     /**
      * Delete a song from library.
      * This function doesn't check if someone is playing the song.

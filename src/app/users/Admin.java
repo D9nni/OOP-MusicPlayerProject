@@ -1,6 +1,7 @@
 package app.users;
 
 import app.audio.Library;
+import app.audio.Song;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.commands.Command;
 import app.utils.MyConst;
@@ -274,7 +275,8 @@ public final class Admin {
             objectNode.put("message", " The username " + username + " doesn't exist.");
         } else {
             User user = (User) generalUser;
-            user.getPlayer().adBreak(cmd.getTimestamp(), objectNode);
+            Song ad = library.getSongs().get(0);
+            user.getPlayer().adBreak(cmd.getTimestamp(), objectNode, ad);
         }
     }
 

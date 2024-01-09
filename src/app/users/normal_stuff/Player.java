@@ -28,7 +28,6 @@ public class Player {
     @Getter
     private AudioFile track = null;
     private ArrayList<AudioFile> trackList;
-    private int size;
     private int trackId = 0;
     private int trackSeek = 0;
     private int trackDuration = 0;
@@ -151,12 +150,7 @@ public class Player {
     }
 
     private Integer getPlayerSeek() {
-        int i;
-        if (shuffleIndexes != null) { //case of Song
-            i = shuffleIndexes.get(0);
-        } else {
-            i = 0;
-        }
+        int i = shuffleIndexes.get(0);
         int sum = 0;
         while (i != trackId && i != -1) {
             sum += trackList.get(i).getDuration();
@@ -166,10 +160,6 @@ public class Player {
     }
 
     private void setTrackSeek() {
-        if (sourceType == MyConst.SourceType.SONG) {
-            trackSeek = playerSeek;
-
-        } else {
             int i = 0;
             int sum = 0;
             if (playerSeek == 0) {
@@ -189,10 +179,44 @@ public class Player {
                 trackSeek = playerSeek - sum;
             }
             trackDuration = track.getDuration();
-        }
         user.getStats().updateStats(track, source);
     }
+    private void loadSource(AudioObject selectedObject, int timestamp) {
+        source = selectedObject;
+        sourceType = selectedObject.getType();
+        if (sourceType == MyConst.SourceType.PLAYLIST
+                || sourceType == MyConst.SourceType.PODCAST
+                || sourceType == MyConst.SourceType.ALBUM) {
+            AudioCollection collectionSource = (AudioCollection) source;
+            trackList = collectionSource.getTracks();
+            shuffleIndexes = new ArrayList<>();
+            for (int i = 0; i < trackList.size(); i++) {
+                shuffleIndexes.add(i);
+            }
 
+        } else if (sourceType == MyConst.SourceType.SONG) {
+
+            track = (AudioFile) source;
+            user.getStats().updateStats(track, source);
+            // song is considered a playlist with just one track
+            trackList = new ArrayList<>();
+            trackList.add(track);
+            shuffleIndexes = new ArrayList<>();
+            shuffleIndexes.add(0);
+        }
+        trackId = 0;
+        startTime = timestamp;
+
+        //load podcast with time left from last play
+        if (sourceType == MyConst.SourceType.PODCAST) {
+            playerSeek = lastRunTimeMap.getOrDefault(source, 0);
+            if (playerSeek != 0) {
+                setTrackSeek();
+            }
+        }
+        duration = source.getDuration();
+        paused = false;
+    }
     /**
      * Load a source in the player. To succeed you need to use select first.
      *
@@ -212,36 +236,7 @@ public class Player {
             objectNode.put("message", "You can't load an empty audio collection!");
         } else {
             objectNode.put("message", "Playback loaded successfully.");
-            source = selectedObject;
-            sourceType = selectedObject.getType();
-            if (sourceType == MyConst.SourceType.PLAYLIST
-                    || sourceType == MyConst.SourceType.PODCAST
-                    || sourceType == MyConst.SourceType.ALBUM) {
-                AudioCollection collectionSource = (AudioCollection) source;
-                trackList = collectionSource.getTracks();
-                size = trackList.size();
-                shuffleIndexes = new ArrayList<>();
-                for (int i = 0; i < size; i++) {
-                    shuffleIndexes.add(i);
-                }
-
-            } else if (sourceType == MyConst.SourceType.SONG) {
-
-                track = (AudioFile) source;
-                user.getStats().updateStats(track, source);
-                trackList = null;
-                size = 1;
-            }
-            trackId = 0;
-            startTime = cmd.getTimestamp();
-            if (sourceType == MyConst.SourceType.PODCAST) {
-                playerSeek = lastRunTimeMap.getOrDefault(source, 0);
-                if (playerSeek != 0) {
-                    setTrackSeek();
-                }
-            }
-            duration = source.getDuration();
-            paused = false;
+            loadSource(selectedObject, cmd.getTimestamp());
         }
         user.setLastCommand(cmd.getCommand());
     }
@@ -378,16 +373,12 @@ public class Player {
         } else if (shuffle) {
             shuffle = false;
             shuffleIndexes = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < trackList.size(); i++) {
                 shuffleIndexes.add(i);
             }
             objectNode.put("message", "Shuffle function deactivated successfully.");
         } else {
             shuffle = true;
-            shuffleIndexes = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                shuffleIndexes.add(i);
-            }
             Collections.shuffle(shuffleIndexes, new Random(cmd.getSeed()));
             objectNode.put("message", "Shuffle function activated successfully.");
         }
@@ -434,19 +425,19 @@ public class Player {
         }
         updateTrack(cmd.getTimestamp());
         boolean success = source != null;
-        if (trackSeek >= 1) {
-            trackSeek = 0;
-            startTime = cmd.getTimestamp();
-
-        } else if (trackSeek == 0) {
-            if (generatePrevId(trackId, false) != -1) {
-                trackId = generatePrevId(trackId, true);
-                track = trackList.get(trackId);
-            }
-            trackSeek = 0;
-            startTime = cmd.getTimestamp();
-        }
         if (success) {
+            if (trackSeek >= 1) {
+                trackSeek = 0;
+                startTime = cmd.getTimestamp();
+
+            } else if (trackSeek == 0) {
+                if (generatePrevId(trackId, false) != -1) {
+                    trackId = generatePrevId(trackId, true);
+                    track = trackList.get(trackId);
+                }
+                trackSeek = 0;
+                startTime = cmd.getTimestamp();
+            }
             objectNode.put("message", "Returned to previous track successfully."
                     + " The current track is "
                     + track.getName() + ".");
@@ -547,15 +538,9 @@ public class Player {
 
     private Integer generateNextId(final int id, boolean update) {
         int nextId = -1;
-        if (shuffle) {
-            int i = shuffleIndexes.indexOf(id);
-            if (i + 1 < size) {
-                nextId = shuffleIndexes.get(i + 1);
-            }
-        } else {
-            if (id + 1 < size) {
-                nextId = id + 1;
-            }
+        int i = shuffleIndexes.indexOf(id);
+        if (i + 1 < trackList.size()) {
+            nextId = shuffleIndexes.get(i + 1);
         }
         if(nextId != -1 && update) {
             user.getStats().updateStats(trackList.get(nextId), source);
@@ -565,15 +550,9 @@ public class Player {
 
     private Integer generatePrevId(final int id, boolean update) {
         int prevId = -1;
-        if (shuffle) {
-            int i = shuffleIndexes.indexOf(id);
-            if (i - 1 >= 0) {
-                prevId = shuffleIndexes.get(i - 1);
-            }
-        } else {
-            if (id - 1 >= 0) {
-                prevId = id - 1;
-            }
+        int i = shuffleIndexes.indexOf(id);
+        if (i - 1 >= 0) {
+            prevId = shuffleIndexes.get(i - 1);
         }
         if(prevId != -1 && update) {
             user.getStats().updateStats(trackList.get(prevId), source);
@@ -597,15 +576,15 @@ public class Player {
         }
         return null;
     }
-    private void insertAd(){
-
+    private void insertAd(Song ad){
+        trackList.add(trackId + 1, ad);
     }
-    public void adBreak(int timestamp, ObjectNode objectNode) {
+    public void adBreak(int timestamp, ObjectNode objectNode, Song ad) {
         if(!isPlaying(timestamp)) {
             objectNode.put("message", user.getUsername() +  " is not playing any music.");
         } else {
             objectNode.put("message", "Ad inserted successfully.");
-            insertAd();
+            insertAd(ad);
         }
     }
 
