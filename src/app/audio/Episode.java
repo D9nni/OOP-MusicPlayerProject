@@ -29,6 +29,11 @@ public final class Episode extends AudioFile {
     }
 
     @Override
+    public String getOwner() {
+        return null;
+    }
+
+    @Override
     public boolean isAd() {
         return false;
     }

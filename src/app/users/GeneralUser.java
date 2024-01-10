@@ -4,9 +4,12 @@ import app.analytics.wrapped.Wrapped;
 import app.audio.Library;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.commands.Command;
+import com.sun.tools.attach.AgentInitializationException;
 import lombok.Getter;
 import app.pages.Page;
 import app.utils.MyConst;
+
+import java.util.ArrayList;
 
 @Getter
 public abstract class GeneralUser {
@@ -15,6 +18,7 @@ public abstract class GeneralUser {
     private final String city;
     private final MyConst.UserType type;
     private Page currentPage;
+    private final ArrayList<GeneralUser> subscriptions = new ArrayList<>();
 
     public GeneralUser(final String username, final String city,
                        final int age, final MyConst.UserType type) {
@@ -94,6 +98,14 @@ public abstract class GeneralUser {
      */
     public void setCurrentPage(final Page currentPage) {
         this.currentPage = currentPage;
+    }
+    public void addSubscription(GeneralUser subscriber) {
+        subscriptions.add(subscriber);
+        subscriber.getSubscriptions().add(this);
+    }
+    public void removeSubscription(GeneralUser subscriber) {
+        subscriptions.remove(subscriber);
+        subscriber.getSubscriptions().remove(this);
     }
     public abstract Wrapped getStats();
 }

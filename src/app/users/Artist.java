@@ -7,6 +7,8 @@ import app.audio.Song;
 import app.audio.Playlist;
 import app.audio.AudioFile;
 import app.audio.Library;
+import app.observer.Observable;
+import app.observer.Observator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,13 +24,16 @@ import app.utils.ValidateInput;
 import java.util.ArrayList;
 
 @Getter
-public class Artist extends GeneralUser {
+public class Artist extends GeneralUser implements Observator {
     private final ArrayList<Album> albums = new ArrayList<>();
     private final ArtistPage artistPage = new ArtistPage(this);
     private final ArrayList<ArtistEvent> artistEvents = new ArrayList<>();
     private final ArrayList<Merch> merch = new ArrayList<>();
     private final ArtistStats stats = new ArtistStats(this);
     private final ArtistIncome income = new ArtistIncome(this);
+    private static final String ALBUM_NOTIFICATION = "New Album: New Album from ";
+    private static final String MERCH_NOTIFICATION = "New Merchandise: New Merchandise from ";
+    private static final String EVENT_NOTIFICATION = "New Event: New Event from ";
 
     /**
      * Calculate total likes.
@@ -77,6 +82,8 @@ public class Artist extends GeneralUser {
                         cmd.getReleaseYear(), cmd.getDescription(), cmd.getSongs(),
                         library);
                 albums.add(newAlbum);
+                String albumNotification = ALBUM_NOTIFICATION + getUsername() + ".";
+                sendNotification(albumNotification);
                 objectNode.put("message", cmd.getUsername()
                         + " has added new album successfully.");
             }
@@ -174,6 +181,8 @@ public class Artist extends GeneralUser {
                 ArtistEvent artistEvent = new ArtistEvent(cmd.getName(),
                         cmd.getDescription(), cmd.getDate());
                 artistEvents.add(artistEvent);
+                String eventNotification = EVENT_NOTIFICATION + getUsername() + ".";
+                sendNotification(eventNotification);
                 objectNode.put("message", super.getUsername()
                         + " has added new event successfully.");
             }
@@ -217,6 +226,8 @@ public class Artist extends GeneralUser {
             } else {
                 Merch merch1 = new Merch(cmd.getName(), cmd.getDescription(), cmd.getPrice());
                 merch.add(merch1);
+                String merchNotification = MERCH_NOTIFICATION + getUsername() + ".";
+                sendNotification(merchNotification);
                 objectNode.put("message", super.getUsername()
                         + " has added new merchandise successfully.");
             }
@@ -325,4 +336,11 @@ public class Artist extends GeneralUser {
         return canBeDeleted;
     }
 
+    @Override
+    public void sendNotification(String message) {
+        for (GeneralUser genUser : getSubscriptions()) {
+            User user = (User) genUser;
+            user.receiveNotification(message);
+        }
+    }
 }

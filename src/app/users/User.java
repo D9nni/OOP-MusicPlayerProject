@@ -2,11 +2,11 @@ package app.users;
 
 import app.analytics.monetization.UserIncome;
 import app.analytics.wrapped.UserStats;
-import app.audio.Library;
+import app.audio.*;
 import app.commands.Command;
-import app.audio.AudioObject;
-import app.audio.Playlist;
-import app.audio.Song;
+import app.observer.Observable;
+import app.observer.Observator;
+import app.pages.Page;
 import app.users.normal_stuff.Player;
 import app.users.normal_stuff.SearchBar;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import app.utils.MyConst;
 import java.util.ArrayList;
 
 @Getter
-public class User extends GeneralUser {
+public class User extends GeneralUser implements Observable {
     private final String username;
     private final int age;
     private final String city;
@@ -36,6 +36,9 @@ public class User extends GeneralUser {
     private final Player player = new Player(this);
     private final UserStats stats = new UserStats(this);
     private final UserIncome income = new UserIncome(this);
+    private ArrayList<String> notifications = new ArrayList<>();
+    private ArrayList<Page> pageHistory = new ArrayList<>();
+    private int currentPageId;
 
 
     private boolean containsPlaylist(final String name) {
@@ -283,20 +286,116 @@ public class User extends GeneralUser {
      */
     public void changePage(final Command cmd, final ObjectNode objectNode) {
         String nextPage = cmd.getNextPage();
+        boolean success = true;
         switch (nextPage) {
             case "Home":
                 setCurrentPage(homePage);
+                pageHistory.add(homePage);
+                currentPageId = pageHistory.size() - 1;
                 break;
             case "LikedContent":
                 setCurrentPage(likedContentPage);
+                pageHistory.add(likedContentPage);
+                currentPageId = pageHistory.size() - 1;
+                break;
+            case "Host":
+                if(player.isPlaying(cmd.getTimestamp())) {
+                    if (player.getSource().getType() == MyConst.SourceType.PODCAST) {
+                        String hostName = player.getSource().getOwner();
+                        GeneralUser host = Admin.getLibrary().getUserOfType(hostName, MyConst.UserType.HOST);
+                        if (host == null) {
+                            success = false;
+                        } else {
+                            setCurrentPage(host.getCurrentPage());
+                            pageHistory.add(getCurrentPage());
+                            currentPageId = pageHistory.size() - 1;
+                        }
+                        break;
+                    }
+                }
+                success = false;
+                break;
+            case "Artist":
+                if(player.isPlaying(cmd.getTimestamp())) {
+                    if(player.getSource().getType() != MyConst.SourceType.PODCAST) {
+                        String artistName = player.getSource().getOwner();
+                        GeneralUser artist = Admin.getLibrary().getUserOfType(artistName, MyConst.UserType.ARTIST);
+                        if(artist == null) {
+                            success = false;
+                        } else {
+                            setCurrentPage(artist.getCurrentPage());
+                            pageHistory.add(getCurrentPage());
+                            currentPageId = pageHistory.size() - 1;
+                        }
+                        break;
+                     }
+                }
+                success = false;
                 break;
             default:
-                objectNode.put("message", username + " is trying to access a non-existent page.");
-                return;
+                success = false;
+                break;
         }
-        objectNode.put("message", username + " accessed " + nextPage + " successfully.");
+        if(!success) {objectNode.put("message", username + " is trying to access a non-existent page.");}
+        else {
+        objectNode.put("message", username + " accessed " + nextPage + " successfully.");}
+
     }
 
+    public String subscribe() {
+        GeneralUser channel = getCurrentPage().getOwner();
+        String message = "";
+        switch (channel.getType()) {
+            case ARTIST, HOST-> {
+                if(channel.getSubscriptions().contains(this)) {
+                    removeSubscription(channel);
+                    message = username + " unsubscribed from " + channel.getUsername() + " successfully.";
+                } else {
+                    addSubscription(channel);
+                    message = username + " subscribed to " + channel.getUsername() + " successfully.";
+                }
+            }
+            case USER -> {
+                message = "To subscribe you need to be on the page of an artist or host.";
+            }
+        }
+        return message;
+    }
+
+    public void getNotifications(final ObjectNode objectNode) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode1;
+        ArrayNode allNotifications = objectMapper.createArrayNode();
+        for (String note : notifications) {
+            String[] nameAndDescription = note.split(": ");
+            objectNode1 = objectMapper.createObjectNode();
+            objectNode1.put("name", nameAndDescription[0]);
+            objectNode1.put("description", nameAndDescription[1]);
+            allNotifications.add(objectNode1);
+        }
+        notifications = new ArrayList<>();
+        objectNode.set("notifications", allNotifications);
+    }
+    public void nextPage(final ObjectNode objectNode) {
+        if(currentPageId == pageHistory.size() - 1) {
+            objectNode.put("message", "There are no pages left to go forward.");
+        } else {
+            currentPageId++;
+            setCurrentPage(pageHistory.get(currentPageId));
+            objectNode.put("message", "The user " + username +" has navigated successfully to the next page.");
+        }
+
+    }
+    public void previousPage(final ObjectNode objectNode) {
+        if(currentPageId == 0) {
+            objectNode.put("message", "There are no pages left to go back.");
+        } else {
+            currentPageId--;
+            setCurrentPage(pageHistory.get(currentPageId));
+            objectNode.put("message", "The user " + username +" has navigated successfully to the previous page.");
+        }
+
+    }
     public User(final String username, final String city, final int age) {
         super(username, city, age, MyConst.UserType.USER);
         this.username = username;
@@ -352,4 +451,8 @@ public class User extends GeneralUser {
         this.lastCommand = lastCommand;
     }
 
+    @Override
+    public void receiveNotification(String message) {
+        notifications.add(message);
+    }
 }

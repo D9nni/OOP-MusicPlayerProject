@@ -69,6 +69,11 @@ public final class Song extends AudioFile {
     }
 
     @Override
+    public String getOwner() {
+        return getArtist();
+    }
+
+    @Override
     public boolean isAd() {
         return getGenre().equals("advertisement");
     }

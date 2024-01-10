@@ -93,6 +93,7 @@ public final class CommandManager {
                     case "buyPremium" -> Admin.tryBuyPremium(cmd, objectNode);
                     case "cancelPremium" -> Admin.tryCancelPremium(cmd, objectNode);
                     case "adBreak" -> Admin.tryAdBreak(cmd, objectNode);
+                    case "subscribe" -> Admin.trySubscribe(cmd, objectNode);
                     // for app.commands that depend on user
                     default -> {
                         GeneralUser genUser = library.getGeneralUser(cmd.getUsername());
@@ -153,6 +154,9 @@ public final class CommandManager {
             case "showPreferredSongs" -> user.showPreferredSongs(objectNode);
             case "printCurrentPage" -> user.printCurrentPage(objectNode);
             case "changePage" -> user.changePage(cmd, objectNode);
+            case "getNotifications" -> user.getNotifications(objectNode);
+            case "nextPage" -> user.nextPage(objectNode);
+            case "previousPage" -> user.previousPage(objectNode);
             default -> {
                 return false;
             }

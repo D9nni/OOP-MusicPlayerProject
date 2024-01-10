@@ -4,6 +4,8 @@ import app.analytics.wrapped.HostStats;
 import app.audio.AudioFile;
 import app.audio.Library;
 import app.audio.Podcast;
+import app.observer.Observable;
+import app.observer.Observator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,7 +19,7 @@ import app.utils.MyConst;
 import java.util.ArrayList;
 
 @Getter
-public class Host extends GeneralUser {
+public class Host extends GeneralUser implements Observator {
     private final ArrayList<Podcast> podcasts = new ArrayList<>();
     private final ArrayList<Announcement> announcements = new ArrayList<>();
     private final HostPage hostPage = new HostPage(this);
@@ -204,5 +206,10 @@ public class Host extends GeneralUser {
             }
         }
         return canBeDeleted;
+    }
+
+    @Override
+    public void sendNotification(String message) {
+
     }
 }

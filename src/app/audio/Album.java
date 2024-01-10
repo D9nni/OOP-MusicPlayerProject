@@ -82,6 +82,11 @@ public class Album extends AudioCollection {
         return MyConst.SourceType.ALBUM;
     }
 
+    @Override
+    public String getOwner() {
+        return getArtist();
+    }
+
     /**
      *
      * @return the list of songs upcasted to AudioFile
