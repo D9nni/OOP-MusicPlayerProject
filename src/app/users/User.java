@@ -2,10 +2,10 @@ package app.users;
 
 import app.analytics.monetization.UserIncome;
 import app.analytics.wrapped.UserStats;
+import app.analytics.wrapped.Wrapped;
 import app.audio.*;
 import app.commands.Command;
 import app.observer.Observable;
-import app.observer.Observator;
 import app.pages.Page;
 import app.users.normal_stuff.Player;
 import app.users.normal_stuff.SearchBar;
@@ -18,6 +18,7 @@ import app.pages.LikedContentPage;
 import app.utils.MyConst;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Getter
 public class User extends GeneralUser implements Observable {
@@ -64,11 +65,11 @@ public class User extends GeneralUser implements Observable {
         if (this.containsPlaylist(cmd.getPlaylistName())) {
             objectNode.put("message", "A playlist with the same name already exists.");
         } else {
-            Playlist playlist = new Playlist();
-            playlist.setName(cmd.getPlaylistName());
-            playlist.setCreationTime(cmd.getTimestamp());
-            playlist.setOwner(username);
-            playlist.setVisibility(true);
+            Playlist playlist = new Playlist(cmd.getPlaylistName(),
+                    new ArrayList<>(),
+                    username,
+                    cmd.getTimestamp(),
+                    true);
             playlists.add(playlist);
             objectNode.put("message", "Playlist created successfully.");
         }
@@ -232,7 +233,14 @@ public class User extends GeneralUser implements Observable {
         }
         objectNode.set("result", resultNode);
     }
-
+    public ArrayList<Song> getTop5LikedSongs(){
+        return likedSongs
+                .stream()
+                .sorted((obj1, obj2) -> obj2.getLikes() - obj1.getLikes())
+                .limit(MyConst.RESULT_SIZE)
+                .collect(Collectors.toCollection(ArrayList::new
+                ));
+    }
     /**
      * Switch the connection status to the opposite than current.
      * @param timestamp the current time
@@ -396,6 +404,36 @@ public class User extends GeneralUser implements Observable {
         }
 
     }
+
+    public void updateRecommendations(final Command cmd, final ObjectNode objectNode) {
+        player.isPlaying(cmd.getTimestamp());
+        objectNode.put("message", "The recommendations for user "+ username + " have been updated successfully.");
+        switch(cmd.getRecommendationType()) {
+            case "random_song" -> {
+                homePage.randomSongRec(player.getTrackSeek(), (Song) player.getTrack());
+            }
+            case "random_playlist" -> {
+                homePage.randomPlaylistRec(cmd.getTimestamp());
+            }
+            case "fans_playlist" -> {
+                homePage.fansPlaylistsRec(player.getSource().getOwner(), cmd.getTimestamp());
+            }
+        }
+    }
+    public void loadRecommendations(final Command cmd, final ObjectNode objectNode) {
+        if (!connected) {
+            standardOfflineCommand("loadRecommendations", objectNode);
+        }
+        if(homePage.getLastRecommendation() == null) {
+
+            objectNode.put("message", "No recommendations available.");
+        } else {
+            System.out.println(homePage.getLastRecommendation().getName() + homePage.getLastRecommendation().getDuration());
+            player.loadSource(homePage.getLastRecommendation(), cmd.getTimestamp());
+            objectNode.put("message", "Playback loaded successfully.");
+        }
+    }
+
     public User(final String username, final String city, final int age) {
         super(username, city, age, MyConst.UserType.USER);
         this.username = username;

@@ -25,15 +25,16 @@ public class Player {
     private AudioFile track = null;
     private ArrayList<AudioFile> trackList;
     private int trackId = 0;
+    @Getter
     private int trackSeek = 0;
     private int trackDuration = 0;
-    private boolean paused;
+    private boolean paused = true;
     private boolean frozen;
     private int startTime = 0;
     private int playerSeek = 0;
     private int duration;
     private final HashMap<AudioObject, Integer> lastRunTimeMap = new HashMap<>();
-    private String name;
+    private String name = "";
     private int repeat = 0;
     private static final String[] REPEAT_STATES;
 
@@ -177,7 +178,8 @@ public class Player {
             trackDuration = track.getDuration();
         user.getStats().updateStats(track, source);
     }
-    private void loadSource(AudioObject selectedObject, int timestamp) {
+    public void loadSource(AudioObject selectedObject, int timestamp) {
+        updateTrack(timestamp);
         source = selectedObject;
         sourceType = selectedObject.getType();
         if (sourceType == MyConst.SourceType.PLAYLIST
@@ -199,6 +201,7 @@ public class Player {
             trackList.add(track);
             shuffleIndexes = new LinkedList<>();
             shuffleIndexes.add(0);
+            trackSeek = 0;
         }
         trackId = 0;
         startTime = timestamp;
@@ -224,7 +227,6 @@ public class Player {
             user.standardOfflineCommand("load", objectNode);
             return;
         }
-        updateTrack(cmd.getTimestamp());
         String lastCommand = user.getLastCommand();
         AudioObject selectedObject = user.getSearchBar().getSelectedAudio();
         if (!lastCommand.equals("select")) {

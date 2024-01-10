@@ -290,7 +290,15 @@ public final class Admin {
             String message = user.subscribe();
             objectNode.put("message", message);
         }
+    }
+
+    public static void tryUpdateRecommendations(final Command cmd, final ObjectNode objectNode) {
+        GeneralUser genUser = getUserOfTypeOrWriteMessage(MyConst.UserType.USER, cmd, objectNode);
+        if(genUser != null) {
+            User user = (User) genUser;
+            user.updateRecommendations(cmd, objectNode);
         }
+    }
 
     public static void setLibrary(final Library library) {
         Admin.library = library;

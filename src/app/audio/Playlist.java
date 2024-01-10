@@ -15,6 +15,13 @@ public class Playlist extends AudioCollection {
     private final ArrayList<Song> songs = new ArrayList<>();
     private int followers = 0;
 
+    public Playlist(String name, ArrayList<Song> songs, String owner, int creationTime, boolean visible) {
+        this.name = name;
+        this.owner = owner;
+        this.creationTime = creationTime;
+        this.visible = visible;
+    }
+
     /**
      * Calculate total likes.
      * @return sum of all songs likes

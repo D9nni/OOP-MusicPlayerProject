@@ -12,6 +12,7 @@ import lombok.Getter;
 import java.util.*;
 
 public class ArtistStats implements Wrapped {
+    @Getter
     private final HashMap<User, Integer> fans = new HashMap<>();
     private final Artist artist;
     @Getter
@@ -70,7 +71,10 @@ public class ArtistStats implements Wrapped {
 
         objectNode.set("result", objectNode1);
     }
-
+    public ArrayList<User> getTop5Fans() {
+        LinkedHashMap<User, Integer> fansResults = Wrapped.createResults(fans, userComparator);
+        return new ArrayList<>(fansResults.keySet());
+    }
     @Override
     public boolean isEmpty() {
         return fans.isEmpty();
