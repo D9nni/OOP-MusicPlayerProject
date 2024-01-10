@@ -13,6 +13,9 @@ public final class Song extends AudioFile {
     private int likes = 0;
     @Getter
     private Double revenue = 0.0;
+    //for ad
+    @Getter
+    private int price;
 
     /**
      *
@@ -67,7 +70,7 @@ public final class Song extends AudioFile {
 
     @Override
     public boolean isAd() {
-        return getName().equals("Ad Break");
+        return getGenre().equals("advertisement");
     }
 
     /**
@@ -131,4 +134,7 @@ public final class Song extends AudioFile {
         return songInput.getArtist();
     }
 
+    public void setPrice(int price) {
+        this.price = price;
+    }
 }

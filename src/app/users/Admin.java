@@ -276,6 +276,7 @@ public final class Admin {
         } else {
             User user = (User) generalUser;
             Song ad = library.getSongs().get(0);
+            ad.setPrice(cmd.getPrice());
             user.getPlayer().adBreak(cmd.getTimestamp(), objectNode, ad);
         }
     }

@@ -13,11 +13,7 @@ import app.audio.Song;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 public class Player {
     @Getter
@@ -47,7 +43,7 @@ public class Player {
     }
 
     private boolean shuffle;
-    private List<Integer> shuffleIndexes;
+    private LinkedList<Integer> shuffleIndexes;
 
     /**
      * Check if player is running
@@ -189,7 +185,7 @@ public class Player {
                 || sourceType == MyConst.SourceType.ALBUM) {
             AudioCollection collectionSource = (AudioCollection) source;
             trackList = collectionSource.getTracks();
-            shuffleIndexes = new ArrayList<>();
+            shuffleIndexes = new LinkedList<>();
             for (int i = 0; i < trackList.size(); i++) {
                 shuffleIndexes.add(i);
             }
@@ -201,7 +197,7 @@ public class Player {
             // song is considered a playlist with just one track
             trackList = new ArrayList<>();
             trackList.add(track);
-            shuffleIndexes = new ArrayList<>();
+            shuffleIndexes = new LinkedList<>();
             shuffleIndexes.add(0);
         }
         trackId = 0;
@@ -228,6 +224,7 @@ public class Player {
             user.standardOfflineCommand("load", objectNode);
             return;
         }
+        updateTrack(cmd.getTimestamp());
         String lastCommand = user.getLastCommand();
         AudioObject selectedObject = user.getSearchBar().getSelectedAudio();
         if (!lastCommand.equals("select")) {
@@ -372,7 +369,7 @@ public class Player {
             objectNode.put("message", "The loaded source is not a playlist or an album.");
         } else if (shuffle) {
             shuffle = false;
-            shuffleIndexes = new ArrayList<>();
+            shuffleIndexes = new LinkedList<>();
             for (int i = 0; i < trackList.size(); i++) {
                 shuffleIndexes.add(i);
             }
@@ -577,7 +574,16 @@ public class Player {
         return null;
     }
     private void insertAd(Song ad){
+        int size = trackList.size();
+        for (int i = 0; i < size; i++) {
+            if(shuffleIndexes.get(i) > trackId) {
+                shuffleIndexes.set(i, shuffleIndexes.get(i) + 1);
+            }
+        }
         trackList.add(trackId + 1, ad);
+        shuffleIndexes.add(trackId + 1, trackId + 1);
+
+
     }
     public void adBreak(int timestamp, ObjectNode objectNode, Song ad) {
         if(!isPlaying(timestamp)) {

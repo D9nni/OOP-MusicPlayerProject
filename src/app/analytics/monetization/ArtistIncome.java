@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class ArtistIncome implements Comparable<ArtistIncome>{
     @Getter
     private final Artist artist;
@@ -57,18 +60,22 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
         songRevenue += money;
     }
     public void updateMostProfitableSong() {
-        Song bestSong = null;
+        ArrayList<Song> bestSongs = new ArrayList<>();
         Double bestRevenue = 0.0;
         for (Song song : Admin.getLibrary().getSongs()) {
             if(song.getArtist().equals(artist.getUsername())) {
-                if(song.getRevenue()>bestRevenue) {
+                if(song.getRevenue() > bestRevenue) {
                     bestRevenue = song.getRevenue();
-                    bestSong = song;
+                    bestSongs = new ArrayList<>();
+                    bestSongs.add(song);
+                } else if (bestRevenue != 0.0 && song.getRevenue().equals(bestRevenue)) {
+                    bestSongs.add(song);
                 }
             }
         }
-        if(bestSong != null) {
-            mostProfitableSong = bestSong.getName();
+        bestSongs.sort(Comparator.comparing(Song::getName));
+        if(!bestSongs.isEmpty())  {
+            mostProfitableSong = bestSongs.get(0).getName();
         }
     }
 }

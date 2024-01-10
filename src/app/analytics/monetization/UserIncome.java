@@ -1,9 +1,7 @@
 package app.analytics.monetization;
 
 import app.analytics.wrapped.Wrapped;
-import app.audio.Library;
 import app.audio.Song;
-import app.users.Admin;
 import app.users.Artist;
 import app.users.GeneralUser;
 import app.users.User;
@@ -23,9 +21,14 @@ public class UserIncome {
     @Getter
     private HashMap<Song, Integer> premiumSongs;
     @Getter
+    private HashMap<Song, Integer> nonPremiumSongs = new HashMap<>();
+    @Getter
     private HashMap<Artist, Integer> premiumArtists;
     @Getter
+    private HashMap<Artist, Integer> nonPremiumArtists = new HashMap<>();
+    @Getter
     private boolean premium = false;
+    private Song lastAd = null;
 
     public UserIncome(User user) {
         this.user = user;
@@ -69,6 +72,8 @@ public class UserIncome {
             premium = true;
             premiumSongs = new HashMap<>();
             premiumArtists = new HashMap<>();
+            nonPremiumSongs = new HashMap<>();
+            nonPremiumArtists = new HashMap<>();
             objectNode.put("message", user.getUsername() + " bought the subscription successfully.");
         }
     }
@@ -77,36 +82,57 @@ public class UserIncome {
         if(premium) {
             paySongs();
             premium = false;
+            premiumSongs = new HashMap<>();
+            premiumArtists = new HashMap<>();
             objectNode.put("message", user.getUsername() + " cancelled the subscription successfully.");
         } else {
             objectNode.put("message", user.getUsername() + " is not a premium user.");
         }
     }
-    public void updatePremiumSongs(Song song) {
+    public void updateMonetizationSongs(Song song) {
         if(premium) {
             premiumSongs.put(song, premiumSongs.getOrDefault(song, 0) + 1);
+        } else {
+            if(song.isAd()) {
+                lastAd = song;
+                paySongs();
+                lastAd = null;
+                nonPremiumSongs = new HashMap<>();
+                nonPremiumArtists = new HashMap<>();
+            } else {
+                nonPremiumSongs.put(song, nonPremiumSongs.getOrDefault(song, 0) + 1);
+            }
         }
     }
-    public void updatePremiumArtists(Artist artist) {
+    public void updateMonetizationArtists(Artist artist) {
         if(premium) {
             premiumArtists.put(artist, premiumArtists.getOrDefault(artist,0) + 1);
+        } else {
+            nonPremiumArtists.put(artist, nonPremiumArtists.getOrDefault(artist,0) + 1);
         }
     }
     public void paySongs() {
         if(!premium) {
-            return;
+            if(lastAd != null) {
+                paySongsHelper((double) lastAd.getPrice(), nonPremiumSongs, nonPremiumArtists);
+            }
+        } else {
+            paySongsHelper(MyConst.USER_CREDIT, premiumSongs, premiumArtists);
         }
-        HashMap <Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(premiumSongs);
+
+    }
+    private void paySongsHelper(Double totalMoney, HashMap <Song, Integer> songsList, HashMap <Artist, Integer> artistsList) {
+        HashMap <Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(songsList);
         int totalSongs = 0;
         for (Song song : uniqueSongs.keySet()) {
             totalSongs += uniqueSongs.get(song);
         }
         for (Song song : uniqueSongs.keySet()) {
-            song.addRevenue(MyConst.USER_CREDIT*uniqueSongs.get(song) / totalSongs);
+            song.addRevenue(totalMoney*uniqueSongs.get(song) / totalSongs);
         }
-        for (Artist artist : premiumArtists.keySet()) {
-            int listenedSongs = premiumArtists.get(artist);
-            Double moneyToPay = MyConst.USER_CREDIT * listenedSongs / totalSongs;
+        for (Artist artist : artistsList.keySet()) {
+            int listenedSongs = artistsList.get(artist);
+            Double moneyToPay = totalMoney * listenedSongs / totalSongs;
             artist.getIncome().sellSongs(moneyToPay);
         }
     }
