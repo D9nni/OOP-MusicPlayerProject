@@ -109,11 +109,7 @@ public class UserStats implements Wrapped {
                             album.incrementListened();
                         } else {
                             Song song = (Song) track;
-                            boolean loop = true;
                             for (Artist artist : library.getArtists()) {
-                                if (!loop) {
-                                    break;
-                                }
                                 for (Album album : artist.getAlbums()) {
                                     if (album.getSongs().contains(song)) {
                                         album.incrementListened();

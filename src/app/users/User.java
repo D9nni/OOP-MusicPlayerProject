@@ -407,17 +407,17 @@ public class User extends GeneralUser implements Observable {
 
     public void updateRecommendations(final Command cmd, final ObjectNode objectNode) {
         player.isPlaying(cmd.getTimestamp());
-        objectNode.put("message", "The recommendations for user "+ username + " have been updated successfully.");
-        switch(cmd.getRecommendationType()) {
-            case "random_song" -> {
-                homePage.randomSongRec(player.getTrackSeek(), (Song) player.getTrack());
-            }
-            case "random_playlist" -> {
-                homePage.randomPlaylistRec(cmd.getTimestamp());
-            }
-            case "fans_playlist" -> {
-                homePage.fansPlaylistsRec(player.getSource().getOwner(), cmd.getTimestamp());
-            }
+
+        boolean success = switch(cmd.getRecommendationType()) {
+            case "random_song" -> homePage.randomSongRec(player.getTrackSeek(), (Song) player.getTrack());
+            case "random_playlist" -> homePage.randomPlaylistRec(cmd.getTimestamp());
+            case "fans_playlist" -> homePage.fansPlaylistsRec(player.getSource().getOwner(), cmd.getTimestamp());
+            default -> false;
+        };
+        if(success) {
+            objectNode.put("message", "The recommendations for user "+ username + " have been updated successfully.");
+        } else {
+            objectNode.put("message", "No new recommendations were found");
         }
     }
     public void loadRecommendations(final Command cmd, final ObjectNode objectNode) {

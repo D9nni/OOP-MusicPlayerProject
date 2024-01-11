@@ -132,7 +132,7 @@ public class Artist extends GeneralUser implements Observator {
                             break;
                         case SONG:
                             Song song = (Song) user.getPlayer().getTrack();
-                            if (removedAlbum.containsSongByNameAndArtist(song)) {
+                            if (removedAlbum.getSongs().contains(song)) {
                                 canBeRemoved = false;
                                 break;
                             }

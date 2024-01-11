@@ -95,5 +95,4 @@ public class Album extends AudioCollection {
     public ArrayList<AudioFile> getTracks() {
         return new ArrayList<>(songs);
     }
-
 }

@@ -78,9 +78,9 @@ public final class HomePage implements Page {
         objectNode.put("message", stringBuilder.toString());
 
     }
-    public void randomSongRec(int trackSeek, Song track) {
+    public boolean randomSongRec(int trackSeek, Song track) {
         if(trackSeek < 30) {
-            return;
+            return false;
         }
         String genre = track.getGenre();
         ArrayList<Song> genreSongs = new ArrayList<>();
@@ -89,19 +89,26 @@ public final class HomePage implements Page {
                 genreSongs.add(song);
             }
         }
+        if(genreSongs.isEmpty()) {
+            return false;
+        }
         Random random = new Random(trackSeek);
         int searchedIndex = random.nextInt(0, genreSongs.size());
         Song randomSong = genreSongs.get(searchedIndex);
         songRecommendations.add(randomSong);
         lastRecommendation = randomSong;
+        return true;
     }
-    public void randomPlaylistRec(int timestamp){
+    public boolean randomPlaylistRec(int timestamp){
         ArrayList<Song> allSongs = new ArrayList<>(owner.getLikedSongs());
         ArrayList<Playlist> allPlaylists = new ArrayList<>(owner.getPlaylists());
         allPlaylists.addAll(owner.getFollowedPlaylists());
         HashMap<String, ArrayList<Song>> genres = new HashMap<>();
         for(Playlist playlist : allPlaylists) {
             allSongs.addAll(playlist.getSongs());
+        }
+        if(allSongs.isEmpty()) {
+            return false;
         }
         for (Song song : allSongs) {
             ArrayList<Song> genreSongs = genres.get(song.getGenre());
@@ -138,20 +145,25 @@ public final class HomePage implements Page {
         Playlist randomPlaylist = new Playlist(playlistName, playlistSongs, owner.getUsername(), timestamp,true);
         playlistsRecommendations.add(randomPlaylist);
         lastRecommendation = randomPlaylist;
+        return true;
 
     }
-    public void fansPlaylistsRec(String artistName, int timestamp) {
+    public boolean fansPlaylistsRec(String artistName, int timestamp) {
         Artist artist = (Artist) Admin.getLibrary().getUserOfType(artistName, MyConst.UserType.ARTIST);
-        assert artist != null;
+        assert artist != null;//sterge
         ArrayList<User> fans = artist.getStats().getTop5Fans();
         ArrayList<Song> allSongs = new ArrayList<>();
         for (User fan : fans) {
             allSongs.addAll(fan.getTop5LikedSongs());
+        }
+        if(allSongs.isEmpty()) {
+            return false;
         }
         allSongs.sort((obj1, obj2) -> obj2.getLikes() - obj1.getLikes());
         String playlistName = artistName + " Fan Club recommendations";
         Playlist fansPlaylist = new Playlist(playlistName, allSongs, owner.getUsername(), timestamp, true);
         playlistsRecommendations.add(fansPlaylist);
         lastRecommendation = fansPlaylist;
+        return true;
     }
 }
