@@ -254,6 +254,7 @@ public final class Admin {
             objectNode.put("message", " The username " + username + " doesn't exist.");
         } else {
             User user = (User) generalUser;
+            user.getPlayer().isPlaying(cmd.getTimestamp());
             user.getIncome().buyPremium(objectNode);
         }
     }
@@ -264,6 +265,7 @@ public final class Admin {
             objectNode.put("message", " The username " + username + " doesn't exist.");
         } else {
             User user = (User) generalUser;
+            user.getPlayer().isPlaying(cmd.getTimestamp());
             user.getIncome().cancelPremium(objectNode);
         }
     }

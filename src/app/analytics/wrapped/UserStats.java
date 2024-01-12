@@ -92,46 +92,50 @@ public class UserStats implements Wrapped {
                 && albums.isEmpty()
                 && episodes.isEmpty();
     }
+    private void updateSong(Song song, Library library) {
+        for (Artist artist : library.getArtists()) {
+            for (Album album : artist.getAlbums()) {
+                if (album.getSongs().contains(song)) {
+                    album.incrementListened();
+                    albums.put(album, albums.getOrDefault(album, 0) + 1);
+                }
+            }
+        }
+        user.getIncome().updateMonetizationSongs(song);
+        songs.put(song, songs.getOrDefault(song, 0) + 1);
+        artists.put(song.getArtist(), artists.getOrDefault(song.getArtist(), 0) + 1);
+        Artist artist = (Artist) library.getUserOfType(song.getArtist(), MyConst.UserType.ARTIST);
+        if (artist != null) {
+            artist.getStats().addFan(user);
+            user.getIncome().updateMonetizationArtists(artist);
+        }
+    }
 
     public void updateStats(AudioFile track, AudioObject source) {
-        if (track != null) {
-            track.incrementListened();
-            if(track.isAd()) {
-                //for now, we only have Song ad
-                Song ad = (Song) track;
-                user.getIncome().updateMonetizationSongs(ad);
-            } else {
-                switch (track.getType()) {
-                    case SONG -> {
-                        Song song = (Song) track;
-                        for (Artist artist : library.getArtists()) {
-                            for (Album album : artist.getAlbums()) {
-                                if (album.getSongs().contains(song)) {
-                                    album.incrementListened();
-                                    albums.put(album, albums.getOrDefault(album, 0) + 1);
-                                }
-                            }
-                        }
-                        user.getIncome().updateMonetizationSongs(song);
-                        songs.put(song, songs.getOrDefault(song, 0) + 1);
-                        artists.put(song.getArtist(), artists.getOrDefault(song.getArtist(), 0) + 1);
-                        Artist artist = (Artist) library.getUserOfType(song.getArtist(), MyConst.UserType.ARTIST);
-                        if (artist != null) {
-                            artist.getStats().addFan(user);
-                            user.getIncome().updateMonetizationArtists(artist);
-                        }
-                    }
-                    case EPISODE -> {
-                        Episode episode = (Episode) track;
-                        episodes.put(episode, episodes.getOrDefault(episode, 0) + 1);
+        if (track == null) {
+            return;
+        }
+        track.incrementListened();
+        if(track.isAd()) {
+            //for now, we only have Song ad
+            Song ad = (Song) track;
+            user.getIncome().updateMonetizationSongs(ad);
+            return;
+        }
+        switch (track.getType()) {
+            case SONG -> {
+                Song song = (Song) track;
+                updateSong(song, library);
+            }
+            case EPISODE -> {
+                Episode episode = (Episode) track;
+                episodes.put(episode, episodes.getOrDefault(episode, 0) + 1);
 
-                        Podcast podcast = (Podcast) source;
-                        Host host = (Host) library.getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
-                        if (host != null) {
-                            host.getStats().addFan(user);
-                            host.getStats().addEpisode(episode);
-                        }
-                    }
+                Podcast podcast = (Podcast) source;
+                Host host = (Host) library.getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
+                if (host != null) {
+                    host.getStats().addFan(user);
+                    host.getStats().addEpisode(episode);
                 }
             }
         }

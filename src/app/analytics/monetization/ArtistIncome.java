@@ -1,5 +1,6 @@
 package app.analytics.monetization;
 
+import app.audio.Album;
 import app.audio.Song;
 import app.users.Admin;
 import app.users.Artist;
@@ -9,8 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ArtistIncome implements Comparable<ArtistIncome>{
     @Getter
@@ -60,22 +61,16 @@ public class ArtistIncome implements Comparable<ArtistIncome>{
         songRevenue += money;
     }
     public void updateMostProfitableSong() {
-        ArrayList<Song> bestSongs = new ArrayList<>();
-        Double bestRevenue = 0.0;
+        HashMap<String, Double> bestSongsMap = new HashMap<>();
         for (Song song : Admin.getLibrary().getSongs()) {
-            if(song.getArtist().equals(artist.getUsername())) {
-                if(song.getRevenue() > bestRevenue) {
-                    bestRevenue = song.getRevenue();
-                    bestSongs = new ArrayList<>();
-                    bestSongs.add(song);
-                } else if (bestRevenue != 0.0 && song.getRevenue().equals(bestRevenue)) {
-                    bestSongs.add(song);
-                }
+            if(song.getArtist().equals(artist.getUsername()) && song.getRevenue() > 0.0d) {
+                bestSongsMap.put(song.getName(), bestSongsMap.getOrDefault(song.getName(), 0.0d) + song.getRevenue());
             }
         }
-        bestSongs.sort(Comparator.comparing(Song::getName));
-        if(!bestSongs.isEmpty())  {
-            mostProfitableSong = bestSongs.get(0).getName();
-        }
+        Comparator<Map.Entry<String, Double>> songComparator = Comparator
+                .comparing(Map.Entry<String, Double>::getValue, Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey);
+        mostProfitableSong = bestSongsMap.entrySet()
+                .stream().min(songComparator).map(Map.Entry::getKey).orElse("N/A");
     }
 }

@@ -72,8 +72,6 @@ public class UserIncome {
             premium = true;
             premiumSongs = new HashMap<>();
             premiumArtists = new HashMap<>();
-            nonPremiumSongs = new HashMap<>();
-            nonPremiumArtists = new HashMap<>();
             objectNode.put("message", user.getUsername() + " bought the subscription successfully.");
         }
     }
@@ -91,7 +89,15 @@ public class UserIncome {
     }
     public void updateMonetizationSongs(Song song) {
         if(premium) {
-            premiumSongs.put(song, premiumSongs.getOrDefault(song, 0) + 1);
+            if(song.isAd()) {
+                lastAd = song;
+                paySongs();
+                lastAd = null;
+                nonPremiumSongs = new HashMap<>();
+                nonPremiumArtists = new HashMap<>();
+            } else {
+                premiumSongs.put(song, premiumSongs.getOrDefault(song, 0) + 1);
+            }
         } else {
             if(song.isAd()) {
                 lastAd = song;
@@ -122,13 +128,12 @@ public class UserIncome {
 
     }
     private void paySongsHelper(Double totalMoney, HashMap <Song, Integer> songsList, HashMap <Artist, Integer> artistsList) {
-        HashMap <Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(songsList);
         int totalSongs = 0;
-        for (Song song : uniqueSongs.keySet()) {
-            totalSongs += uniqueSongs.get(song);
+        for (Song song : songsList.keySet()) {
+            totalSongs += songsList.get(song);
         }
-        for (Song song : uniqueSongs.keySet()) {
-            song.addRevenue(totalMoney*uniqueSongs.get(song) / totalSongs);
+        for (Song song : songsList.keySet()) {
+            song.addRevenue(totalMoney* songsList.get(song) / totalSongs);
         }
         for (Artist artist : artistsList.keySet()) {
             int listenedSongs = artistsList.get(artist);
