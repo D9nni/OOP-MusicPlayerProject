@@ -1,6 +1,5 @@
 package app.analytics.monetization;
 
-import app.analytics.wrapped.Wrapped;
 import app.audio.Song;
 import app.users.Artist;
 import app.users.GeneralUser;
@@ -30,33 +29,34 @@ public class UserIncome {
     private boolean premium = false;
     private Song lastAd = null;
 
-    public UserIncome(User user) {
+    public UserIncome(final User user) {
         this.user = user;
     }
 
-    public void buyMerch(ObjectNode objectNode, String merchName) {
+    public void buyMerch(final ObjectNode objectNode, final String merchName) {
         GeneralUser pageOwner = user.getCurrentPage().getOwner();
-        if(pageOwner.getType() == MyConst.UserType.ARTIST) {
+        if (pageOwner.getType() == MyConst.UserType.ARTIST) {
             Artist artist = (Artist) pageOwner;
             Merch selectedMerch = null;
             for (Merch merch : artist.getMerch()) {
-                if(merch.name().equals(merchName)) {
+                if (merch.name().equals(merchName)) {
                     selectedMerch = merch;
                     break;
                 }
             }
-            if(selectedMerch != null){
+            if (selectedMerch != null) {
                 boughtMerch.add(selectedMerch);
                 artist.getIncome().sellMerch(selectedMerch);
                 objectNode.put("message", user.getUsername() + " has added new merch successfully.");
             } else {
-                objectNode.put("message", "The merch "+ merchName +" doesn't exist.");
+                objectNode.put("message", "The merch " + merchName + " doesn't exist.");
             }
         } else {
-            objectNode.put("message","Cannot buy merch from this page.");
+            objectNode.put("message", "Cannot buy merch from this page.");
         }
     }
-    public void seeMerch(ObjectNode objectNode) {
+
+    public void seeMerch(final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayNode merchNode = objectMapper.createArrayNode();
         for (Merch merch : boughtMerch) {
@@ -65,7 +65,7 @@ public class UserIncome {
         objectNode.set("result", merchNode);
     }
 
-    public void buyPremium(ObjectNode objectNode) {
+    public void buyPremium(final ObjectNode objectNode) {
         if (premium) {
             objectNode.put("message", user.getUsername() + " is already a premium user.");
         } else {
@@ -76,8 +76,8 @@ public class UserIncome {
         }
     }
 
-    public void cancelPremium(ObjectNode objectNode) {
-        if(premium) {
+    public void cancelPremium(final ObjectNode objectNode) {
+        if (premium) {
             paySongs();
             premium = false;
             premiumSongs = new HashMap<>();
@@ -87,19 +87,12 @@ public class UserIncome {
             objectNode.put("message", user.getUsername() + " is not a premium user.");
         }
     }
-    public void updateMonetizationSongs(Song song) {
-        if(premium) {
-            if(song.isAd()) {
-                lastAd = song;
-                paySongs();
-                lastAd = null;
-                nonPremiumSongs = new HashMap<>();
-                nonPremiumArtists = new HashMap<>();
-            } else {
+
+    public void updateMonetizationSongs(final Song song) {
+        if (premium) {
                 premiumSongs.put(song, premiumSongs.getOrDefault(song, 0) + 1);
-            }
         } else {
-            if(song.isAd()) {
+            if (song.isAd()) {
                 lastAd = song;
                 paySongs();
                 lastAd = null;
@@ -110,16 +103,18 @@ public class UserIncome {
             }
         }
     }
-    public void updateMonetizationArtists(Artist artist) {
-        if(premium) {
-            premiumArtists.put(artist, premiumArtists.getOrDefault(artist,0) + 1);
+
+    public void updateMonetizationArtists(final Artist artist) {
+        if (premium) {
+            premiumArtists.put(artist, premiumArtists.getOrDefault(artist, 0) + 1);
         } else {
-            nonPremiumArtists.put(artist, nonPremiumArtists.getOrDefault(artist,0) + 1);
+            nonPremiumArtists.put(artist, nonPremiumArtists.getOrDefault(artist, 0) + 1);
         }
     }
+
     public void paySongs() {
-        if(!premium) {
-            if(lastAd != null) {
+        if (!premium) {
+            if (lastAd != null) {
                 paySongsHelper((double) lastAd.getPrice(), nonPremiumSongs, nonPremiumArtists);
             }
         } else {
@@ -127,13 +122,14 @@ public class UserIncome {
         }
 
     }
-    private void paySongsHelper(Double totalMoney, HashMap <Song, Integer> songsList, HashMap <Artist, Integer> artistsList) {
+
+    private void paySongsHelper(final Double totalMoney, final HashMap<Song, Integer> songsList, final HashMap<Artist, Integer> artistsList) {
         int totalSongs = 0;
         for (Song song : songsList.keySet()) {
             totalSongs += songsList.get(song);
         }
         for (Song song : songsList.keySet()) {
-            song.addRevenue(totalMoney* songsList.get(song) / totalSongs);
+            song.addRevenue(totalMoney * songsList.get(song) / totalSongs);
         }
         for (Artist artist : artistsList.keySet()) {
             int listenedSongs = artistsList.get(artist);

@@ -19,17 +19,18 @@ public class ArtistStats implements Wrapped {
     private final ArrayList<Album> removedAlbums = new ArrayList<>();
 
 
-    public ArtistStats(Artist artist) {
+    public ArtistStats(final Artist artist) {
         this.artist = artist;
     }
 
-    public void addFan(User user) {
+    public void addFan(final User user) {
         fans.put(user, fans.getOrDefault(user, 0) + 1);
     }
+
     @Override
-    public void wrapped(ObjectNode objectNode) {
-        if(isEmpty()) {
-            objectNode.put("message", "No data to show for artist " + artist.getUsername() +".");
+    public void wrapped(final ObjectNode objectNode) {
+        if (isEmpty()) {
+            objectNode.put("message", "No data to show for artist " + artist.getUsername() + ".");
             return;
         }
 
@@ -39,7 +40,7 @@ public class ArtistStats implements Wrapped {
 
         ArrayList<Album> allAlbums = new ArrayList<>(artist.getAlbums());
         allAlbums.addAll(removedAlbums);
-        HashMap <Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(
+        HashMap<Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(
                 Wrapped.createHashMapFromArrayList(allAlbums));
         LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums
                 , albumComparator);
@@ -73,10 +74,12 @@ public class ArtistStats implements Wrapped {
 
         objectNode.set("result", objectNode1);
     }
+
     public ArrayList<User> getTop5Fans() {
         LinkedHashMap<User, Integer> fansResults = Wrapped.createResults(fans, userComparator);
         return new ArrayList<>(fansResults.keySet());
     }
+
     @Override
     public boolean isEmpty() {
         return fans.isEmpty();

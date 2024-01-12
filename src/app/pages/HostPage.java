@@ -21,25 +21,13 @@ public final class HostPage implements Page {
     public void printPage(final ObjectNode objectNode) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Podcasts:\n\t[");
-        String separator = ", ";
         ArrayList<Podcast> podcasts = owner.getPodcasts();
-        int size = podcasts.size();
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(podcasts.get(i).toString());
-            if (i != size - 1) {
-                stringBuilder.append(separator);
-            }
-        }
+        Page.appendObjectListToStringBuilder(podcasts, stringBuilder);
 
         stringBuilder.append("]\n\nAnnouncements:\n\t[");
         ArrayList<Announcement> announcements = owner.getAnnouncements();
-        size = announcements.size();
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(announcements.get(i).toString());
-            if (i != size - 1) {
-                stringBuilder.append(separator);
-            }
-        }
+        Page.appendObjectListToStringBuilder(announcements, stringBuilder);
+
         stringBuilder.append("]");
 
         objectNode.put("message", stringBuilder.toString());

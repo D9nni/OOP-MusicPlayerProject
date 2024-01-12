@@ -48,7 +48,8 @@ public final class Library {
     /**
      * Get top 5 playlists by number of followers.
      * If there are two with same number of followers, they are sorted ascending by creationTime.
-     * @param objectNode   for parsing json
+     *
+     * @param objectNode for parsing json
      */
     public void getTop5Playlists(final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -78,7 +79,8 @@ public final class Library {
 
     /**
      * Get top 5 songs by number of likes.
-     * @param objectNode   for output containing list of names
+     *
+     * @param objectNode for output containing list of names
      */
     public void getTop5Songs(final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -95,6 +97,7 @@ public final class Library {
     /**
      * Get top 5 albums by total likes.
      * If there are two albums with same number of likes, they're sorted alphabetically.
+     *
      * @param objectNode for output containing list of names
      */
     public void getTop5Albums(final ObjectNode objectNode) {
@@ -123,6 +126,7 @@ public final class Library {
 
     /**
      * Get top 5 artists by total likes.
+     *
      * @param objectNode for output containing list of usernames
      */
     public void getTop5Artists(final ObjectNode objectNode) {
@@ -139,6 +143,7 @@ public final class Library {
 
     /**
      * Get the normal users online.
+     *
      * @param objectNode for output containing list of usernames
      */
     public void getOnlineUsers(final ObjectNode objectNode) {
@@ -154,6 +159,7 @@ public final class Library {
 
     /**
      * Get a list of all users having any type.
+     *
      * @param objectNode for output containing list of usernames
      */
     public void getAllUsers(final ObjectNode objectNode) {
@@ -180,7 +186,7 @@ public final class Library {
             user.getIncome().paySongs();
         }
         for (Artist artist : artists) {
-            if(artist.getStats().hasFans() || artist.getIncome().getMerchRevenue() > 0.0) {
+            if (artist.getStats().hasFans() || artist.getIncome().getMerchRevenue() > 0.0) {
                 artistIncomes.add(artist.getIncome());
             }
         }
@@ -197,6 +203,7 @@ public final class Library {
 
     /**
      * Check if there is a user of any type having the given name.
+     *
      * @param name the username of searched user
      * @return true if any user with given name exists
      */
@@ -207,6 +214,7 @@ public final class Library {
 
     /**
      * Get a general user instance by name.
+     *
      * @param name username of searched user
      * @return an object representing searched user or null
      */
@@ -228,6 +236,7 @@ public final class Library {
         }
         return null;
     }
+
     public GeneralUser getUserOfType(final String name, final MyConst.UserType type) {
         switch (type) {
             case USER -> {
@@ -254,8 +263,10 @@ public final class Library {
         }
         return null;
     }
+
     /**
      * Add a user to users list.
+     *
      * @param user user to be added
      */
     public void addUser(final User user) {
@@ -264,6 +275,7 @@ public final class Library {
 
     /**
      * Add an artist to artists list.
+     *
      * @param artist artist to be added
      */
     public void addArtist(final Artist artist) {
@@ -272,13 +284,12 @@ public final class Library {
 
     /**
      * Add a host to hosts list.
+     *
      * @param host host to be added
      */
     public void addHost(final Host host) {
         hosts.add(host);
     }
-
-
 
 
 }

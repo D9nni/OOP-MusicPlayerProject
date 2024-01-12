@@ -9,7 +9,7 @@ import lombok.Getter;
 
 
 public final class Admin {
-    @Getter
+    @Getter // this getter is used where library is needed to avoid giving it as a parameter everywhere
     private static Library library;
 
     private Admin() {
@@ -18,8 +18,9 @@ public final class Admin {
 
     /**
      * Gets a user of some type or writes in objectNode a message.
-     * @param userType the type of user expected to be used in a command
-     * @param cmd for username and timestamp
+     *
+     * @param userType   the type of user expected to be used in a command
+     * @param cmd        for username and timestamp
      * @param objectNode for output
      * @return null if no user of requested type was found and output was written.
      * Else returns the expected user.
@@ -49,7 +50,8 @@ public final class Admin {
     /**
      * Try to switch the connection status.
      * Will succeed only on a normal user.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void trySwitchConnectionStatus(final Command cmd, final ObjectNode objectNode) {
@@ -63,7 +65,8 @@ public final class Admin {
     /**
      * Try to add a new album.
      * Will succeed only if the user is an artist.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddAlbum(final Command cmd, final ObjectNode objectNode) {
@@ -77,7 +80,8 @@ public final class Admin {
     /**
      * Try to add a new event.
      * Will succeed only if the user is an artist.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddEvent(final Command cmd, final ObjectNode objectNode) {
@@ -87,10 +91,12 @@ public final class Admin {
             artist.addEvent(cmd, objectNode);
         }
     }
+
     /**
      * Try to add a new merch.
      * Will succeed only if the user is an artist.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddMerch(final Command cmd, final ObjectNode objectNode) {
@@ -100,10 +106,12 @@ public final class Admin {
             artist.addMerch(cmd, objectNode);
         }
     }
+
     /**
      * Try to add a new announcement.
      * Will succeed only if the user is a host.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddAnnouncement(final Command cmd, final ObjectNode objectNode) {
@@ -113,10 +121,12 @@ public final class Admin {
             host.addAnnouncement(cmd, objectNode);
         }
     }
+
     /**
      * Try to remove an announcement.
      * Will succeed only if the user is a host and the announcement exists.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryRemoveAnnouncement(final Command cmd, final ObjectNode objectNode) {
@@ -126,10 +136,12 @@ public final class Admin {
             host.removeAnnouncement(cmd, objectNode);
         }
     }
+
     /**
      * Try to add a new podcast.
      * Will succeed only if the user is a host.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddPodcast(final Command cmd, final ObjectNode objectNode) {
@@ -139,10 +151,12 @@ public final class Admin {
             host.addPodcast(library, cmd, objectNode);
         }
     }
+
     /**
      * Try to remove a podcast.
      * Will succeed only if the user is a host and the podcast exists.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryRemovePodcast(final Command cmd, final ObjectNode objectNode) {
@@ -152,10 +166,12 @@ public final class Admin {
             host.removePodcast(library, cmd, objectNode);
         }
     }
+
     /**
      * Try to remove an album.
      * Will succeed only if the user is an artist and the album exists.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryRemoveAlbum(final Command cmd, final ObjectNode objectNode) {
@@ -165,10 +181,12 @@ public final class Admin {
             artist.removeAlbum(library, cmd, objectNode);
         }
     }
+
     /**
      * Try to remove an event.
      * Will succeed only if the user is an artist and the event exists.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryRemoveEvent(final Command cmd, final ObjectNode objectNode) {
@@ -178,10 +196,12 @@ public final class Admin {
             artist.removeEvent(cmd, objectNode);
         }
     }
+
     /**
      * Try to add a new user.
      * Will succeed only if the given username isn't registered as user.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryAddUser(final Command cmd, final ObjectNode objectNode) {
@@ -193,10 +213,12 @@ public final class Admin {
             objectNode.put("message", "The username " + username + " has been added successfully.");
         }
     }
+
     /**
      * Try to delete a user.
      * Will succeed only if the user exists and no one is using his stuff now.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public static void tryDeleteUser(final Command cmd, final ObjectNode objectNode) {
@@ -226,6 +248,7 @@ public final class Admin {
             generalUser.getStats().wrapped(objectNode);
         }
     }
+
     public static void tryBuyMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -236,6 +259,7 @@ public final class Admin {
             user.getIncome().buyMerch(objectNode, cmd.getName());
         }
     }
+
     public static void trySeeMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -258,6 +282,7 @@ public final class Admin {
             user.getIncome().buyPremium(objectNode);
         }
     }
+
     public static void tryCancelPremium(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -282,6 +307,7 @@ public final class Admin {
             user.getPlayer().adBreak(cmd.getTimestamp(), objectNode, ad);
         }
     }
+
     public static void trySubscribe(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -296,7 +322,7 @@ public final class Admin {
 
     public static void tryUpdateRecommendations(final Command cmd, final ObjectNode objectNode) {
         GeneralUser genUser = getUserOfTypeOrWriteMessage(MyConst.UserType.USER, cmd, objectNode);
-        if(genUser != null) {
+        if (genUser != null) {
             User user = (User) genUser;
             user.updateRecommendations(cmd, objectNode);
         }

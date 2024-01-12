@@ -1,7 +1,6 @@
 package app.analytics.wrapped;
 
 import app.audio.Episode;
-import app.audio.Podcast;
 import app.users.Host;
 import app.users.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,16 +16,18 @@ public class HostStats implements Wrapped {
     private final HashSet<Episode> episodes = new HashSet<>();
     private final Host host;
 
-    public HostStats(Host host) {
+    public HostStats(final Host host) {
         this.host = host;
     }
-    public void addFan(User user) {
+
+    public void addFan(final User user) {
         fans.add(user);
     }
+
     @Override
-    public void wrapped(ObjectNode objectNode) {
-        if(isEmpty()) {
-            objectNode.put("message", "No data to show for host "+ host.getUsername()+".");
+    public void wrapped(final ObjectNode objectNode) {
+        if (isEmpty()) {
+            objectNode.put("message", "No data to show for host " + host.getUsername() + ".");
             return;
         }
         ObjectMapper objectMapper = new ObjectMapper();
@@ -52,7 +53,7 @@ public class HostStats implements Wrapped {
         return fans.isEmpty();
     }
 
-    public void addEpisode (Episode episode) {
+    public void addEpisode(final Episode episode) {
         episodes.add(episode);
     }
 }

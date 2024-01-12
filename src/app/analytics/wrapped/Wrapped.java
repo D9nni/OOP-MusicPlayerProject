@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 public interface Wrapped {
     void wrapped(ObjectNode objectNode);
+
     boolean isEmpty();
+
     Comparator<Map.Entry<Song, Integer>> songComparator = Comparator
             .comparing(Map.Entry<Song, Integer>::getValue, Comparator.reverseOrder())
             .thenComparing(entry -> entry.getKey().getName());
@@ -30,6 +32,7 @@ public interface Wrapped {
     Comparator<Map.Entry<User, Integer>> userComparator = Comparator
             .comparing(Map.Entry<User, Integer>::getValue, Comparator.reverseOrder())
             .thenComparing(entry -> entry.getKey().getUsername());
+
     static <K> LinkedHashMap<K, Integer> createResults(HashMap<K, Integer> map, java.util.Comparator<Map.Entry<K, Integer>> comparator) {
         return map.entrySet()
                 .stream()
@@ -40,10 +43,11 @@ public interface Wrapped {
                         Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
     }
+
     static <K extends AudioObject> HashMap<K, Integer> createHashMapFromArrayList(ArrayList<K> arrayList) {
         HashMap<K, Integer> hashMap = new HashMap<>();
         for (K elem : arrayList) {
-            if(elem.getListened() > 0) {
+            if (elem.getListened() > 0) {
                 hashMap.put(elem, elem.getListened());
             }
         }
@@ -55,11 +59,12 @@ public interface Wrapped {
             map1.put(elem, map1.getOrDefault(elem, 0) + map2.get(elem));
         }
     }
+
     static HashMap<Song, Integer> mergeDuplicateSongs(HashMap<Song, Integer> songs) {
-        HashMap <Song, Integer> result = new HashMap<>();
+        HashMap<Song, Integer> result = new HashMap<>();
         for (Song song : songs.keySet()) {
             Song song1 = containsSong(result, song);
-            if(song1 != null) {
+            if (song1 != null) {
                 result.put(song1, result.get(song1) + songs.get(song));
             } else {
                 result.put(song, songs.get(song));
@@ -67,8 +72,9 @@ public interface Wrapped {
         }
         return result;
     }
+
     static HashMap<Album, Integer> mergeDuplicateAlbums(HashMap<Album, Integer> albums) {
-        HashMap <Album, Integer> result = new HashMap<>();
+        HashMap<Album, Integer> result = new HashMap<>();
         for (Album album : albums.keySet()) {
             Album album1 = containsAlbum(result, album);
             if (album1 != null) {
@@ -79,6 +85,7 @@ public interface Wrapped {
         }
         return result;
     }
+
     private static Song containsSong(HashMap<Song, Integer> songs, Song song) {
         for (Song song1 : songs.keySet()) {
             if (song1.getName().equals(song.getName()) && song1.getArtist().equals(song.getArtist())) {
@@ -90,7 +97,7 @@ public interface Wrapped {
 
     private static Album containsAlbum(HashMap<Album, Integer> albums, Album album) {
         for (Album album1 : albums.keySet()) {
-            if(album1.getName().equals(album.getName())) {
+            if (album1.getName().equals(album.getName())) {
                 return album1;
             }
         }

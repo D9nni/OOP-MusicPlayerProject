@@ -1,6 +1,13 @@
 package app.analytics.wrapped;
 
-import app.audio.*;
+import app.audio.Song;
+import app.audio.Library;
+import app.audio.Album;
+import app.audio.Episode;
+import app.audio.AudioFile;
+import app.audio.AudioObject;
+import app.audio.Podcast;
+import app.users.Admin;
 import app.users.Artist;
 import app.users.Host;
 import app.users.User;
@@ -9,7 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class UserStats implements Wrapped {
     @Getter
@@ -20,20 +28,14 @@ public class UserStats implements Wrapped {
     private final HashMap<Episode, Integer> episodes = new HashMap<>();
     private final HashMap<String, Integer> genres = new HashMap<>();
     private final User user;
-    private static Library library;
 
-    public static void setLibrary(Library library1) {
-        library = library1;
-    }
-
-
-    public UserStats(User user) {
+    public UserStats(final User user) {
         this.user = user;
     }
 
     @Override
-    public void wrapped(ObjectNode objectNode) {
-        if(isEmpty()) {
+    public void wrapped(final ObjectNode objectNode) {
+        if (isEmpty()) {
             objectNode.put("message", "No data to show for user " + user.getUsername() + ".");
             return;
         }
@@ -52,7 +54,7 @@ public class UserStats implements Wrapped {
             genres.put(song.getGenre(), genres.getOrDefault(song.getGenre(), 0) + songs.get(song));
         }
         // merge songs with same name and same artist
-        HashMap <Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(songs);
+        HashMap<Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(songs);
         LinkedHashMap<Song, Integer> resultSongs = Wrapped.createResults(uniqueSongs, songComparator);
         for (Song song : resultSongs.keySet()) {
             objectNode2.put(song.getName(), resultSongs.get(song));
@@ -68,7 +70,7 @@ public class UserStats implements Wrapped {
 
         objectNode2 = objectMapper.createObjectNode();
 
-        HashMap <Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(albums);
+        HashMap<Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(albums);
         LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums, albumComparator);
         for (Album album : albumsResults.keySet()) {
             objectNode2.put(album.getName(), albumsResults.get(album));
@@ -92,7 +94,8 @@ public class UserStats implements Wrapped {
                 && albums.isEmpty()
                 && episodes.isEmpty();
     }
-    private void updateSong(Song song, Library library) {
+
+    private void updateSong(final Song song, final Library library) {
         for (Artist artist : library.getArtists()) {
             for (Album album : artist.getAlbums()) {
                 if (album.getSongs().contains(song)) {
@@ -111,12 +114,12 @@ public class UserStats implements Wrapped {
         }
     }
 
-    public void updateStats(AudioFile track, AudioObject source) {
+    public void updateStats(final AudioFile track, final AudioObject source) {
         if (track == null) {
             return;
         }
         track.incrementListened();
-        if(track.isAd()) {
+        if (track.isAd()) {
             //for now, we only have Song ad
             Song ad = (Song) track;
             user.getIncome().updateMonetizationSongs(ad);
@@ -125,14 +128,14 @@ public class UserStats implements Wrapped {
         switch (track.getType()) {
             case SONG -> {
                 Song song = (Song) track;
-                updateSong(song, library);
+                updateSong(song, Admin.getLibrary());
             }
             case EPISODE -> {
                 Episode episode = (Episode) track;
                 episodes.put(episode, episodes.getOrDefault(episode, 0) + 1);
 
                 Podcast podcast = (Podcast) source;
-                Host host = (Host) library.getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
+                Host host = (Host) Admin.getLibrary().getUserOfType(podcast.getOwner(), MyConst.UserType.HOST);
                 if (host != null) {
                     host.getStats().addFan(user);
                     host.getStats().addEpisode(episode);

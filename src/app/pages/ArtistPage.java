@@ -9,11 +9,11 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 
+@Getter
 public final class ArtistPage implements Page {
-    @Getter
     private final Artist owner;
 
-    public ArtistPage(Artist owner) {
+    public ArtistPage(final Artist owner) {
         this.owner = owner;
     }
 
@@ -22,35 +22,16 @@ public final class ArtistPage implements Page {
     public void printPage(final ObjectNode objectNode) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Albums:\n\t[");
-        String separator = ", ";
         ArrayList<Album> albums = owner.getAlbums();
-        int size = albums.size();
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(albums.get(i).getName());
-            if (i != size - 1) {
-                stringBuilder.append(separator);
-            }
-        }
+        Page.appendObjectListToStringBuilder(albums, stringBuilder);
 
         stringBuilder.append("]\n\nMerch:\n\t[");
         ArrayList<Merch> merch = owner.getMerch();
-        size = merch.size();
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(merch.get(i).toString());
-            if (i != size - 1) {
-                stringBuilder.append(separator);
-            }
-        }
+        Page.appendObjectListToStringBuilder(merch, stringBuilder);
 
         stringBuilder.append("]\n\nEvents:\n\t[");
         ArrayList<ArtistEvent> artistEvents = owner.getArtistEvents();
-        size = artistEvents.size();
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(artistEvents.get(i).toString());
-            if (i != size - 1) {
-                stringBuilder.append(separator);
-            }
-        }
+        Page.appendObjectListToStringBuilder(artistEvents, stringBuilder);
         stringBuilder.append("]");
         objectNode.put("message", stringBuilder.toString());
     }

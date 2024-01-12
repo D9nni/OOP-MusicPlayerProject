@@ -15,7 +15,7 @@ public final class Song extends AudioFile {
     private Double revenue = 0.0;
     //for ad
     @Getter
-    private int price;
+    private int price = 0;
 
     /**
      *
@@ -33,15 +33,17 @@ public final class Song extends AudioFile {
 
     public Song(final Song song) {
         songInput = new SongInput();
-        this.songInput.setName(song.getName());
-        this.songInput.setAlbum(song.getAlbum());
-        this.songInput.setArtist(song.getArtist());
-        this.songInput.setDuration(song.getDuration());
-        this.songInput.setGenre(song.getGenre());
-        this.songInput.setLyrics(song.getLyrics());
-        this.songInput.setTags(song.getTags());
-        this.songInput.setReleaseYear(song.getReleaseYear());
-        likes = 0;
+        songInput.setName(song.getName());
+        songInput.setAlbum(song.getAlbum());
+        songInput.setArtist(song.getArtist());
+        songInput.setDuration(song.getDuration());
+        songInput.setGenre(song.getGenre());
+        songInput.setLyrics(song.getLyrics());
+        songInput.setTags(song.getTags());
+        songInput.setReleaseYear(song.getReleaseYear());
+        likes = song.getLikes();
+        revenue = song.getRevenue();
+        price = song.getPrice();
     }
 
 
@@ -93,7 +95,7 @@ public final class Song extends AudioFile {
         }
     }
 
-    public void addRevenue(Double money) {
+    public void addRevenue(final Double money) {
         revenue += money;
     }
     public String getName() {
@@ -139,7 +141,7 @@ public final class Song extends AudioFile {
         return songInput.getArtist();
     }
 
-    public void setPrice(int price) {
+    public void setPrice(final int price) {
         this.price = price;
     }
 }

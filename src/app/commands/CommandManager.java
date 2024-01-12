@@ -60,7 +60,6 @@ public final class CommandManager {
      * Main command that checks which command is going to be run
      */
     public void executeCommands() {
-        UserStats.setLibrary(library);
         for (Command cmd : commandArrayList) {
             ObjectNode objectNode = objectMapper.createObjectNode();
             objectNode.put("command", cmd.getCommand());

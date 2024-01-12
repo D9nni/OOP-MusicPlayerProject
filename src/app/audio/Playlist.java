@@ -8,16 +8,18 @@ import java.util.ArrayList;
 
 @Getter
 public class Playlist extends AudioCollection {
-    private String name;
-    private String owner;
-    private int creationTime;
-    private boolean visible = true;
-    private final ArrayList<Song> songs = new ArrayList<>();
+    private final String name;
+    private final User owner;
+    private final int creationTime;
+    private boolean visible;
+    private final ArrayList<Song> songs;
     private int followers = 0;
 
-    public Playlist(String name, ArrayList<Song> songs, String owner, int creationTime, boolean visible) {
+    public Playlist(final String name, final ArrayList<Song> songs, final User owner,
+                    final int creationTime, final boolean visible) {
         this.name = name;
         this.owner = owner;
+        this.songs = songs;
         this.creationTime = creationTime;
         this.visible = visible;
     }
@@ -32,6 +34,10 @@ public class Playlist extends AudioCollection {
             totalLikes += song.getLikes();
         }
         return totalLikes;
+    }
+    @Override
+    public String getOwner() {
+        return owner.getUsername();
     }
 
     /**
@@ -72,22 +78,6 @@ public class Playlist extends AudioCollection {
      */
     public MyConst.SourceType getType() {
         return MyConst.SourceType.PLAYLIST;
-    }
-
-    /**
-     *
-     * @param owner set owner name
-     */
-    public void setOwner(final String owner) {
-        this.owner = owner;
-    }
-
-    /**
-     *
-     * @param creationTime set timestamp when it was created
-     */
-    public void setCreationTime(final int creationTime) {
-        this.creationTime = creationTime;
     }
 
     /**
@@ -136,16 +126,22 @@ public class Playlist extends AudioCollection {
     }
 
     /**
-     * increment number of followers
+     * Increment the number of followers and send a notification to owner.
+     * @param username the username who started following the playlist
      */
-    public void follow() {
+    public void follow(final String username) {
+        String message = "Follow Playlist: " + username + " started following " + name + " playlist.";
+        owner.receiveNotification(message);
         followers++;
     }
 
     /**
-     * decrement number of followers
+     * Decrement the number of followers and send a notification to owner.
+     * @param username the username who unfollowed the playlist
      */
-    public void unfollow() {
+    public void unfollow(final String username) {
+        String message = "Unfollow Playlist: " + username + " unfollowed " + name + " playlist.";
+        owner.receiveNotification(message);
         followers--;
     }
 
@@ -157,10 +153,4 @@ public class Playlist extends AudioCollection {
         this.visible = vis;
     }
 
-    /**
-     * @param name name of playlist
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

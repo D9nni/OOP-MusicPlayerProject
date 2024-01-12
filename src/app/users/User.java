@@ -67,7 +67,7 @@ public class User extends GeneralUser implements Observable {
         } else {
             Playlist playlist = new Playlist(cmd.getPlaylistName(),
                     new ArrayList<>(),
-                    username,
+                    this,
                     cmd.getTimestamp(),
                     true);
             playlists.add(playlist);
@@ -179,7 +179,7 @@ public class User extends GeneralUser implements Observable {
 
             if (followedPlaylists.contains(selectedPlaylist)) {
                 followedPlaylists.remove(selectedPlaylist);
-                selectedPlaylist.unfollow();
+                selectedPlaylist.unfollow(username);
                 objectNode.put("message", "Playlist unfollowed successfully.");
             } else {
                 if (selectedPlaylist.getOwner().equals(username)) {
@@ -187,7 +187,7 @@ public class User extends GeneralUser implements Observable {
                             + "playlist.");
                 } else {
                     followedPlaylists.add(selectedPlaylist);
-                    selectedPlaylist.follow();
+                    selectedPlaylist.follow(username);
                     objectNode.put("message", "Playlist followed successfully.");
                 }
             }
@@ -233,7 +233,8 @@ public class User extends GeneralUser implements Observable {
         }
         objectNode.set("result", resultNode);
     }
-    public ArrayList<Song> getTop5LikedSongs(){
+
+    public ArrayList<Song> getTop5LikedSongs() {
         return likedSongs
                 .stream()
                 .sorted((obj1, obj2) -> obj2.getLikes() - obj1.getLikes())
@@ -241,9 +242,11 @@ public class User extends GeneralUser implements Observable {
                 .collect(Collectors.toCollection(ArrayList::new
                 ));
     }
+
     /**
      * Switch the connection status to the opposite than current.
-     * @param timestamp the current time
+     *
+     * @param timestamp  the current time
      * @param objectNode for output
      */
     public void switchConnectionStatus(final int timestamp, final ObjectNode objectNode) {
@@ -261,7 +264,8 @@ public class User extends GeneralUser implements Observable {
 
     /**
      * Fake command used for standard offline command message.
-     * @param command the command type
+     *
+     * @param command    the command type
      * @param objectNode for output
      */
     public void standardOfflineCommand(final String command, final ObjectNode objectNode) {
@@ -276,6 +280,7 @@ public class User extends GeneralUser implements Observable {
 
     /**
      * Print the user's current page.
+     *
      * @param objectNode for output
      */
     @Override
@@ -289,7 +294,8 @@ public class User extends GeneralUser implements Observable {
 
     /**
      * Change the current page.
-     * @param cmd for data
+     *
+     * @param cmd        for data
      * @param objectNode for output
      */
     public void changePage(final Command cmd, final ObjectNode objectNode) {
@@ -307,7 +313,7 @@ public class User extends GeneralUser implements Observable {
                 currentPageId = pageHistory.size() - 1;
                 break;
             case "Host":
-                if(player.isPlaying(cmd.getTimestamp())) {
+                if (player.isPlaying(cmd.getTimestamp())) {
                     if (player.getSource().getType() == MyConst.SourceType.PODCAST) {
                         String hostName = player.getSource().getOwner();
                         GeneralUser host = Admin.getLibrary().getUserOfType(hostName, MyConst.UserType.HOST);
@@ -324,11 +330,11 @@ public class User extends GeneralUser implements Observable {
                 success = false;
                 break;
             case "Artist":
-                if(player.isPlaying(cmd.getTimestamp())) {
-                    if(player.getSource().getType() != MyConst.SourceType.PODCAST) {
+                if (player.isPlaying(cmd.getTimestamp())) {
+                    if (player.getSource().getType() != MyConst.SourceType.PODCAST) {
                         String artistName = player.getSource().getOwner();
                         GeneralUser artist = Admin.getLibrary().getUserOfType(artistName, MyConst.UserType.ARTIST);
-                        if(artist == null) {
+                        if (artist == null) {
                             success = false;
                         } else {
                             setCurrentPage(artist.getCurrentPage());
@@ -336,7 +342,7 @@ public class User extends GeneralUser implements Observable {
                             currentPageId = pageHistory.size() - 1;
                         }
                         break;
-                     }
+                    }
                 }
                 success = false;
                 break;
@@ -344,9 +350,11 @@ public class User extends GeneralUser implements Observable {
                 success = false;
                 break;
         }
-        if(!success) {objectNode.put("message", username + " is trying to access a non-existent page.");}
-        else {
-        objectNode.put("message", username + " accessed " + nextPage + " successfully.");}
+        if (!success) {
+            objectNode.put("message", username + " is trying to access a non-existent page.");
+        } else {
+            objectNode.put("message", username + " accessed " + nextPage + " successfully.");
+        }
 
     }
 
@@ -354,8 +362,8 @@ public class User extends GeneralUser implements Observable {
         GeneralUser channel = getCurrentPage().getOwner();
         String message = "";
         switch (channel.getType()) {
-            case ARTIST, HOST-> {
-                if(channel.getSubscriptions().contains(this)) {
+            case ARTIST, HOST -> {
+                if (channel.getSubscriptions().contains(this)) {
                     removeSubscription(channel);
                     message = username + " unsubscribed from " + channel.getUsername() + " successfully.";
                 } else {
@@ -384,23 +392,25 @@ public class User extends GeneralUser implements Observable {
         notifications = new ArrayList<>();
         objectNode.set("notifications", allNotifications);
     }
+
     public void nextPage(final ObjectNode objectNode) {
-        if(currentPageId == pageHistory.size() - 1) {
+        if (currentPageId == pageHistory.size() - 1) {
             objectNode.put("message", "There are no pages left to go forward.");
         } else {
             currentPageId++;
             setCurrentPage(pageHistory.get(currentPageId));
-            objectNode.put("message", "The user " + username +" has navigated successfully to the next page.");
+            objectNode.put("message", "The user " + username + " has navigated successfully to the next page.");
         }
 
     }
+
     public void previousPage(final ObjectNode objectNode) {
-        if(currentPageId == 0) {
+        if (currentPageId == 0) {
             objectNode.put("message", "There are no pages left to go back.");
         } else {
             currentPageId--;
             setCurrentPage(pageHistory.get(currentPageId));
-            objectNode.put("message", "The user " + username +" has navigated successfully to the previous page.");
+            objectNode.put("message", "The user " + username + " has navigated successfully to the previous page.");
         }
 
     }
@@ -408,23 +418,24 @@ public class User extends GeneralUser implements Observable {
     public void updateRecommendations(final Command cmd, final ObjectNode objectNode) {
         player.isPlaying(cmd.getTimestamp());
 
-        boolean success = switch(cmd.getRecommendationType()) {
+        boolean success = switch (cmd.getRecommendationType()) {
             case "random_song" -> homePage.randomSongRec(player.getTrackSeek(), (Song) player.getTrack());
             case "random_playlist" -> homePage.randomPlaylistRec(cmd.getTimestamp());
             case "fans_playlist" -> homePage.fansPlaylistsRec(player.getSource().getOwner(), cmd.getTimestamp());
             default -> false;
         };
-        if(success) {
-            objectNode.put("message", "The recommendations for user "+ username + " have been updated successfully.");
+        if (success) {
+            objectNode.put("message", "The recommendations for user " + username + " have been updated successfully.");
         } else {
             objectNode.put("message", "No new recommendations were found");
         }
     }
+
     public void loadRecommendations(final Command cmd, final ObjectNode objectNode) {
         if (!connected) {
             standardOfflineCommand("loadRecommendations", objectNode);
         }
-        if(homePage.getLastRecommendation() == null) {
+        if (homePage.getLastRecommendation() == null) {
 
             objectNode.put("message", "No recommendations available.");
         } else {
@@ -446,7 +457,8 @@ public class User extends GeneralUser implements Observable {
     /**
      * Delete user.
      * Checks if someone is using the user's stuff before deletion.
-     * @param library for updating the library
+     *
+     * @param library   for updating the library
      * @param timestamp the current time
      * @return true if user was deleted
      */
@@ -471,7 +483,7 @@ public class User extends GeneralUser implements Observable {
                 playlist.delete(library);
             }
             for (Playlist playlist : followedPlaylists) {
-                playlist.unfollow();
+                playlist.unfollow(username);
             }
             for (Song song : likedSongs) {
                 song.dislike();

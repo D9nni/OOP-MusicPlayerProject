@@ -49,6 +49,7 @@ public class Player {
     /**
      * Check if player is running
      * this command updates the player to current timestamp
+     *
      * @param timestamp time when we check
      * @return true if player is playing at the moment
      */
@@ -60,6 +61,7 @@ public class Player {
 
     /**
      * Determine the track that should play at a moment and update the player.
+     *
      * @param timestamp current time
      */
     private void updateTrack(final int timestamp) {
@@ -149,33 +151,34 @@ public class Player {
         int sum = 0;
         while (i != trackId && i != -1) {
             sum += trackList.get(i).getDuration();
-            i = generateNextId(i , false); // NOT SAFE FOR WRAPPED sterge
+            i = generateNextId(i, false); // NOT SAFE FOR WRAPPED sterge
         }
         return sum + trackSeek;
     }
 
     private void setTrackSeek() {
-            int i = 0;
-            int sum = 0;
-            if (playerSeek == 0) {
-                trackId = shuffleIndexes.get(0);
-                track = trackList.get(trackId);
-                trackSeek = 0;
-            } else {
-                while (sum <= playerSeek) {
-                    track = trackList.get(shuffleIndexes.get(i));
-                    trackId = shuffleIndexes.get(i);
-                    trackDuration = track.getDuration();
-                    sum += trackList.get(shuffleIndexes.get(i)).getDuration();
-                    i++;
-                }
-
-                sum = sum - trackDuration;
-                trackSeek = playerSeek - sum;
+        int i = 0;
+        int sum = 0;
+        if (playerSeek == 0) {
+            trackId = shuffleIndexes.get(0);
+            track = trackList.get(trackId);
+            trackSeek = 0;
+        } else {
+            while (sum <= playerSeek) {
+                track = trackList.get(shuffleIndexes.get(i));
+                trackId = shuffleIndexes.get(i);
+                trackDuration = track.getDuration();
+                sum += trackList.get(shuffleIndexes.get(i)).getDuration();
+                i++;
             }
-            trackDuration = track.getDuration();
+
+            sum = sum - trackDuration;
+            trackSeek = playerSeek - sum;
+        }
+        trackDuration = track.getDuration();
         user.getStats().updateStats(track, source);
     }
+
     public void loadSource(AudioObject selectedObject, int timestamp) {
         unload(timestamp);
         source = selectedObject;
@@ -210,10 +213,11 @@ public class Player {
         paused = false;
         updateTrack(timestamp);
     }
+
     /**
      * Load a source in the player. To succeed you need to use select first.
      *
-     * @param cmd       used to get timestamp and set last command
+     * @param cmd        used to get timestamp and set last command
      * @param objectNode for writing to output
      */
     public void load(final Command cmd, final ObjectNode objectNode) {
@@ -298,6 +302,7 @@ public class Player {
 
     /**
      * Freeze the player. Used when user is set to be offline.
+     *
      * @param timestamp for updating the track
      */
     public void freeze(final int timestamp) {
@@ -308,6 +313,7 @@ public class Player {
 
     /**
      * Unfreeze the player. Used when user is set to be online again.
+     *
      * @param timestamp for updating the track.
      */
     public void unfreeze(final int timestamp) {
@@ -500,8 +506,8 @@ public class Player {
     /**
      * Show player status at a moment.
      *
-     * @param cmd          for timestamp
-     * @param objectNode   for output
+     * @param cmd        for timestamp
+     * @param objectNode for output
      */
     public void status(final Command cmd, final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -536,7 +542,7 @@ public class Player {
         if (i + 1 < trackList.size()) {
             nextId = shuffleIndexes.get(i + 1);
         }
-        if(nextId != -1 && update) {
+        if (nextId != -1 && update) {
             user.getStats().updateStats(trackList.get(nextId), source);
         }
         return nextId;
@@ -548,7 +554,7 @@ public class Player {
         if (i - 1 >= 0) {
             prevId = shuffleIndexes.get(i - 1);
         }
-        if(prevId != -1 && update) {
+        if (prevId != -1 && update) {
             user.getStats().updateStats(trackList.get(prevId), source);
         }
         return prevId;
@@ -570,10 +576,11 @@ public class Player {
         }
         return null;
     }
-    private void insertAd(Song ad){
+
+    private void insertAd(Song ad) {
         int size = trackList.size();
         for (int i = 0; i < size; i++) {
-            if(shuffleIndexes.get(i) > trackId) {
+            if (shuffleIndexes.get(i) > trackId) {
                 shuffleIndexes.set(i, shuffleIndexes.get(i) + 1);
             }
         }
@@ -582,9 +589,10 @@ public class Player {
 
 
     }
+
     public void adBreak(int timestamp, ObjectNode objectNode, Song ad) {
-        if(!isPlaying(timestamp)) {
-            objectNode.put("message", user.getUsername() +  " is not playing any music.");
+        if (!isPlaying(timestamp)) {
+            objectNode.put("message", user.getUsername() + " is not playing any music.");
         } else {
             objectNode.put("message", "Ad inserted successfully.");
             insertAd(ad);
