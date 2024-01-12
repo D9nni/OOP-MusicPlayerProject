@@ -103,22 +103,15 @@ public class UserStats implements Wrapped {
             } else {
                 switch (track.getType()) {
                     case SONG -> {
-                        if (source.getType() == MyConst.SourceType.ALBUM) {
-                            Album album = (Album) source;
-                            albums.put(album, albums.getOrDefault(album, 0) + 1);
-                            album.incrementListened();
-                        } else {
-                            Song song = (Song) track;
-                            for (Artist artist : library.getArtists()) {
-                                for (Album album : artist.getAlbums()) {
-                                    if (album.getSongs().contains(song)) {
-                                        album.incrementListened();
-                                        albums.put(album, albums.getOrDefault(album, 0) + 1);
-                                    }
+                        Song song = (Song) track;
+                        for (Artist artist : library.getArtists()) {
+                            for (Album album : artist.getAlbums()) {
+                                if (album.getSongs().contains(song)) {
+                                    album.incrementListened();
+                                    albums.put(album, albums.getOrDefault(album, 0) + 1);
                                 }
                             }
                         }
-                        Song song = (Song) track;
                         user.getIncome().updateMonetizationSongs(song);
                         songs.put(song, songs.getOrDefault(song, 0) + 1);
                         artists.put(song.getArtist(), artists.getOrDefault(song.getArtist(), 0) + 1);

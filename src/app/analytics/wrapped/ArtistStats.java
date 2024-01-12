@@ -39,8 +39,10 @@ public class ArtistStats implements Wrapped {
 
         ArrayList<Album> allAlbums = new ArrayList<>(artist.getAlbums());
         allAlbums.addAll(removedAlbums);
-        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(
-                Wrapped.createHashMapFromArrayList(allAlbums), albumComparator);
+        HashMap <Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(
+                Wrapped.createHashMapFromArrayList(allAlbums));
+        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums
+                , albumComparator);
         for (Album album : albumsResults.keySet()) {
             objectNode2.put(album.getName(), albumsResults.get(album));
         }

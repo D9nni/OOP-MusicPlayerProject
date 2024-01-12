@@ -69,7 +69,7 @@ public class Player {
         if (source == null) {
             return;
         }
-        if (track == null && trackId != -1 && !trackList.isEmpty()) {
+        if (track == null && !trackList.isEmpty()) {
             track = trackList.get(trackId);
             user.getStats().updateStats(track, source);
         } else if (track == null) {
@@ -142,8 +142,6 @@ public class Player {
                 trackSeek += givenTime;
             }
         }
-
-
     }
 
     private Integer getPlayerSeek() {
@@ -179,7 +177,7 @@ public class Player {
         user.getStats().updateStats(track, source);
     }
     public void loadSource(AudioObject selectedObject, int timestamp) {
-        updateTrack(timestamp);
+        unload(timestamp);
         source = selectedObject;
         sourceType = selectedObject.getType();
         if (sourceType == MyConst.SourceType.PLAYLIST
@@ -193,19 +191,14 @@ public class Player {
             }
 
         } else if (sourceType == MyConst.SourceType.SONG) {
-
-            track = (AudioFile) source;
-            user.getStats().updateStats(track, source);
             // song is considered a playlist with just one track
             trackList = new ArrayList<>();
-            trackList.add(track);
+            trackList.add((AudioFile) source);
             shuffleIndexes = new LinkedList<>();
             shuffleIndexes.add(0);
-            trackSeek = 0;
-        }
-        trackId = 0;
-        startTime = timestamp;
 
+        }
+        startTime = timestamp;
         //load podcast with time left from last play
         if (sourceType == MyConst.SourceType.PODCAST) {
             playerSeek = lastRunTimeMap.getOrDefault(source, 0);
@@ -215,6 +208,7 @@ public class Player {
         }
         duration = source.getDuration();
         paused = false;
+        updateTrack(timestamp);
     }
     /**
      * Load a source in the player. To succeed you need to use select first.
@@ -248,6 +242,7 @@ public class Player {
         track = null;
         trackDuration = 0;
         trackSeek = 0;
+        trackId = 0;
         shuffle = false;
         repeat = 0;
 
