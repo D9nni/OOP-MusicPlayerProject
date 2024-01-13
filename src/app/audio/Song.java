@@ -15,10 +15,9 @@ public final class Song extends AudioFile {
     private Double revenue = 0.0;
     //for ad
     @Getter
-    private int price = 0;
+    private int price;
 
     /**
-     *
      * @return string in format "name - artist"
      */
     @Override
@@ -62,7 +61,6 @@ public final class Song extends AudioFile {
     }
 
     /**
-     *
      * @return SONG type
      */
     @Override
@@ -83,6 +81,7 @@ public final class Song extends AudioFile {
     /**
      * Delete a song from library.
      * This function doesn't check if someone is playing the song.
+     *
      * @param library to access songs list and each user's playlist
      */
     public void delete(final Library library) {
@@ -98,11 +97,12 @@ public final class Song extends AudioFile {
     public void addRevenue(final Double money) {
         revenue += money;
     }
+
     public String getName() {
         return songInput.getName();
     }
+
     /**
-     *
      * @return duration
      */
 

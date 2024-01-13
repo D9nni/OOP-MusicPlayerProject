@@ -366,7 +366,7 @@ public class User extends GeneralUser implements Observable {
                     yield username + " unsubscribed from " + channel.getUsername() + " successfully.";
                 } else {
                     addSubscription(channel);
-                     yield username + " subscribed to " + channel.getUsername() + " successfully.";
+                    yield username + " subscribed to " + channel.getUsername() + " successfully.";
                 }
             }
             case USER -> "To subscribe you need to be on the page of an artist or host.";
@@ -434,7 +434,6 @@ public class User extends GeneralUser implements Observable {
 
             objectNode.put("message", "No recommendations available.");
         } else {
-            System.out.println(homePage.getLastRecommendation().getName() + homePage.getLastRecommendation().getDuration());
             player.loadSource(homePage.getLastRecommendation(), cmd.getTimestamp());
             objectNode.put("message", "Playback loaded successfully.");
         }

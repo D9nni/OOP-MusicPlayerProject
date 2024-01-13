@@ -22,7 +22,6 @@ public class Player {
     private final User user;
     @Getter
     private AudioFile track = null;
-    private AudioFile advertisement = null;
     private ArrayList<AudioFile> trackList;
     private int trackId = 0;
     @Getter
@@ -109,27 +108,23 @@ public class Player {
 
             }
         } else if (repeat == MyConst.REPEAT_CURRENT) {
-
             if (givenTime < trackDuration - trackSeek) {
                 trackSeek += givenTime;
-
             } else {
                 givenTime -= (trackDuration - trackSeek);
                 while (givenTime > trackDuration) {
-                    //si aici ar trebui dat update de fiecre data la track
                     givenTime -= trackDuration;
                 }
                 trackSeek = givenTime;
-
             }
         } else if (repeat == MyConst.REPEAT_ALL || repeat == MyConst.REPEAT_INFINITE) {
             playerSeek = getPlayerSeek();
             playerSeek = playerSeek + givenTime;
             if (playerSeek >= duration) {
+                removeAds(); // remove ads from previous play that were put in trackList
                 playerSeek = playerSeek % duration;
-                //aici ar trebui ca daca modulo da mai mare de 0 sa fac update la toate trackurile
             }
-            setTrackSeek();
+            setTrackSeek(true);
 
         } else if (repeat == MyConst.REPEAT_ONCE) {
             playerSeek = getPlayerSeek();
@@ -137,7 +132,7 @@ public class Player {
             if (playerSeek >= duration && playerSeek < 2 * duration) {
                 repeat = MyConst.NO_REPEAT;
                 playerSeek = playerSeek - duration;
-                setTrackSeek();
+                setTrackSeek(true);
             } else if (playerSeek >= 2 * duration) {
                 ejectNoTime();
             } else {
@@ -151,12 +146,12 @@ public class Player {
         int sum = 0;
         while (i != trackId && i != -1) {
             sum += trackList.get(i).getDuration();
-            i = generateNextId(i, false); // NOT SAFE FOR WRAPPED sterge
+            i = generateNextId(i, false);
         }
         return sum + trackSeek;
     }
 
-    private void setTrackSeek() {
+    private void setTrackSeek(boolean update) {
         int i = 0;
         int sum = 0;
         if (playerSeek == 0) {
@@ -166,6 +161,9 @@ public class Player {
         } else {
             while (sum <= playerSeek) {
                 track = trackList.get(shuffleIndexes.get(i));
+                if (update) {
+                    user.getStats().updateStats(track, source);
+                }
                 trackId = shuffleIndexes.get(i);
                 trackDuration = track.getDuration();
                 sum += trackList.get(shuffleIndexes.get(i)).getDuration();
@@ -206,7 +204,7 @@ public class Player {
         if (sourceType == MyConst.SourceType.PODCAST) {
             playerSeek = lastRunTimeMap.getOrDefault(source, 0);
             if (playerSeek != 0) {
-                setTrackSeek();
+                setTrackSeek(false);
             }
         }
         duration = source.getDuration();
@@ -406,6 +404,8 @@ public class Player {
         if (source == null) {
             ejectNoTime();
             objectNode.put("message", "Please load a source before skipping to the next track.");
+        } else if (track.isAd()) {
+            objectNode.put("message", "You can't skip an ad.");
         } else {
             objectNode.put("message", "Skipped to next track successfully."
                     + " The current track is " + track.getName() + ".");
@@ -443,6 +443,8 @@ public class Player {
                     + track.getName() + ".");
             trackDuration = track.getDuration();
             paused = false;
+        } else if (track.isAd()) {
+            objectNode.put("message", "You can't skip an ad!");
         } else {
             ejectNoTime();
             objectNode.put("message", "Please load a source before returning"
@@ -578,7 +580,6 @@ public class Player {
     }
 
     private void insertAd(final Song ad) {
-       // advertisement = (AudioFile) ad;
         int size = trackList.size();
         for (int i = 0; i < size; i++) {
             if (shuffleIndexes.get(i) > trackId) {
@@ -587,9 +588,28 @@ public class Player {
         }
         trackList.add(trackId + 1, ad);
         shuffleIndexes.add(trackId + 1, trackId + 1);
-
-
     }
+
+    private void removeAds() {
+        LinkedHashMap<AudioFile, Integer> adsHashMap = new LinkedHashMap<>();
+        int size = trackList.size();
+        for (int i = size - 1; i >= 0; i--) {
+            if (trackList.get(i).isAd()) {
+                adsHashMap.put(trackList.get(i), i);
+            }
+        }
+        for (AudioFile ad : adsHashMap.keySet()) {
+            trackList.remove(ad);
+            int adIndex = adsHashMap.get(ad);
+            for (int i = shuffleIndexes.size() - 1; i >= 0; i--) {
+                if (shuffleIndexes.get(i) > adIndex) {
+                    shuffleIndexes.set(i, shuffleIndexes.get(i) - 1);
+                }
+            }
+            shuffleIndexes.remove(adIndex);
+        }
+    }
+
 
     public void adBreak(final int timestamp, final ObjectNode objectNode, final Song ad) {
         if (!isPlaying(timestamp)) {

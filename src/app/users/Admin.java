@@ -302,7 +302,7 @@ public final class Admin {
             objectNode.put("message", " The username " + username + " doesn't exist.");
         } else {
             User user = (User) generalUser;
-            Song ad = library.getSongs().get(0);
+            Song ad = new Song(library.getSongs().get(0)); //copy the ad to prevent data race between users
             ad.setPrice(cmd.getPrice());
             user.getPlayer().adBreak(cmd.getTimestamp(), objectNode, ad);
         }

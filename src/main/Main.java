@@ -76,7 +76,6 @@ public final class Main {
         LibraryInput library = objectMapper.readValue(new File(LIBRARY_PATH), LibraryInput.class);
 
         ArrayNode outputs = objectMapper.createArrayNode();
-        System.out.println("Input: " + filePathInput); // STERGE-MA
         String input = "input/" + filePathInput;
         TypeReference<ArrayList<Command>> listType = new TypeReference<>() {
         };
