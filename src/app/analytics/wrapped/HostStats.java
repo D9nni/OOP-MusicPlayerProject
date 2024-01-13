@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
-public class HostStats implements Wrapped {
+public final class HostStats implements Wrapped {
     private final HashSet<User> fans = new HashSet<>();
     private final HashSet<Episode> episodes = new HashSet<>();
     private final Host host;
@@ -20,10 +20,11 @@ public class HostStats implements Wrapped {
         this.host = host;
     }
 
-    public void addFan(final User user) {
-        fans.add(user);
-    }
-
+    /**
+     * Print statistics about host. Format:
+     * topEpisodes, listeners
+     * @param objectNode for output
+     */
     @Override
     public void wrapped(final ObjectNode objectNode) {
         if (isEmpty()) {
@@ -36,7 +37,8 @@ public class HostStats implements Wrapped {
         //topEpisodes, listeners
         HashMap<Episode, Integer> allEpisodesHashMap = Wrapped.createHashMapFromArrayList(
                 new ArrayList<>(episodes));
-        LinkedHashMap<Episode, Integer> episodesResults = Wrapped.createResults(allEpisodesHashMap, episodeComparator);
+        LinkedHashMap<Episode, Integer> episodesResults = Wrapped.createResults(
+                allEpisodesHashMap, EPISODE_COMPARATOR);
 
         for (Episode episode : episodesResults.keySet()) {
             objectNode2.put(episode.getName(), episodesResults.get(episode));
@@ -53,7 +55,12 @@ public class HostStats implements Wrapped {
         return fans.isEmpty();
     }
 
-    public void addEpisode(final Episode episode) {
+    /**
+     * Add a new episode to list of listened episodes. Method called by user.
+     * @param episode the episode watched
+     */
+    public void addEpisode(final Episode episode, final User user) {
         episodes.add(episode);
+        fans.add(user);
     }
 }

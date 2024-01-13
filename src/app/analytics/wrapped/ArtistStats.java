@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
-public class ArtistStats implements Wrapped {
+public final class ArtistStats implements Wrapped {
     @Getter
     private final HashMap<User, Integer> fans = new HashMap<>();
     private final Artist artist;
@@ -23,10 +25,21 @@ public class ArtistStats implements Wrapped {
         this.artist = artist;
     }
 
+    /**
+     * Method called from UserStats when user listens a song from artist.
+     * @param user the fan
+     */
+
     public void addFan(final User user) {
         fans.put(user, fans.getOrDefault(user, 0) + 1);
     }
 
+    /**
+     * Print statistics about artist. Format:
+     * topAlbums, topSongs, topFans, listeners
+     *
+     * @param objectNode for output
+     */
     @Override
     public void wrapped(final ObjectNode objectNode) {
         if (isEmpty()) {
@@ -42,8 +55,8 @@ public class ArtistStats implements Wrapped {
         allAlbums.addAll(removedAlbums);
         HashMap<Album, Integer> uniqueAlbums = Wrapped.mergeDuplicateAlbums(
                 Wrapped.createHashMapFromArrayList(allAlbums));
-        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums
-                , albumComparator);
+        LinkedHashMap<Album, Integer> albumsResults = Wrapped.createResults(uniqueAlbums,
+                ALBUM_COMPARATOR);
         for (Album album : albumsResults.keySet()) {
             objectNode2.put(album.getName(), albumsResults.get(album));
         }
@@ -52,17 +65,19 @@ public class ArtistStats implements Wrapped {
         objectNode2 = objectMapper.createObjectNode();
         HashMap<Song, Integer> allSongsHashMap = new HashMap<>();
         for (Album album : allAlbums) {
-            Wrapped.mergeMaps(allSongsHashMap, Wrapped.createHashMapFromArrayList(album.getSongs()));
+            Wrapped.mergeMaps(allSongsHashMap,
+                    Wrapped.createHashMapFromArrayList(album.getSongs()));
         }
         HashMap<Song, Integer> uniqueSongs = Wrapped.mergeDuplicateSongs(allSongsHashMap);
-        LinkedHashMap<Song, Integer> songsResults = Wrapped.createResults(uniqueSongs, songComparator);
+        LinkedHashMap<Song, Integer> songsResults = Wrapped.createResults(
+                uniqueSongs, SONG_COMPARATOR);
         for (Song song : songsResults.keySet()) {
             objectNode2.put(song.getName(), songsResults.get(song));
         }
         objectNode1.set("topSongs", objectNode2);
 
         LinkedHashMap<User, Integer> fansResults = Wrapped.createResults(
-                fans, userComparator);
+                fans, USER_COMPARATOR);
         ArrayNode arrayNode = objectMapper.createArrayNode();
         for (User fan : fansResults.keySet()) {
             arrayNode.add(fan.getUsername());
@@ -75,8 +90,12 @@ public class ArtistStats implements Wrapped {
         objectNode.set("result", objectNode1);
     }
 
+    /**
+     * Get top 5 fans by number of listened songs from artist.
+     * @return ArrayList of users
+     */
     public ArrayList<User> getTop5Fans() {
-        LinkedHashMap<User, Integer> fansResults = Wrapped.createResults(fans, userComparator);
+        LinkedHashMap<User, Integer> fansResults = Wrapped.createResults(fans, USER_COMPARATOR);
         return new ArrayList<>(fansResults.keySet());
     }
 
@@ -85,8 +104,5 @@ public class ArtistStats implements Wrapped {
         return fans.isEmpty();
     }
 
-    public boolean hasFans() {
-        return !fans.isEmpty();
-    }
 
 }

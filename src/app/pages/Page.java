@@ -13,8 +13,20 @@ public interface Page {
      * @param objectNode for output
      */
     void printPage(ObjectNode objectNode);
+
+    /**
+     * @return the user who owns the page
+     */
     GeneralUser getOwner();
-    static <K extends AudioObject> void appendAudioListToStringBuilder(ArrayList<K> audioList, StringBuilder stringBuilder) {
+
+    /**
+     * Append all audio objects to stringBuilder using method getName().
+     * @param audioList list of audio objects
+     * @param stringBuilder the string builder
+     * @param <K> any audio object type
+     */
+    static <K extends AudioObject> void appendAudioListToStringBuilder(
+            ArrayList<K> audioList, StringBuilder stringBuilder) {
         int size = Integer.min(audioList.size(), MyConst.RESULT_SIZE);
         for (int i = 0; i < size; i++) {
             stringBuilder.append(audioList.get(i).getName());
@@ -23,7 +35,15 @@ public interface Page {
             }
         }
     }
-    static <K> void appendObjectListToStringBuilder(ArrayList<K> objectList, StringBuilder stringBuilder) {
+
+    /**
+     * Append all objects to string builder using method toString().
+     * @param objectList list of objects
+     * @param stringBuilder the string builder
+     * @param <K> any type with method toString()
+     */
+    static <K> void appendObjectListToStringBuilder(
+            ArrayList<K> objectList, StringBuilder stringBuilder) {
         int size = objectList.size();
         for (int i = 0; i < size; i++) {
             stringBuilder.append(objectList.get(i).toString());

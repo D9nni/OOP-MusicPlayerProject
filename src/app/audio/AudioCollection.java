@@ -34,11 +34,17 @@ public abstract class AudioCollection implements AudioObject {
      */
     public abstract ArrayList<AudioFile> getTracks();
 
+    /**
+     * Increment number of listens.
+     */
     @Override
     public void incrementListened() {
         listened++;
     }
 
+    /**
+     * @return number of listens
+     */
     @Override
     public int getListened() {
         return listened;

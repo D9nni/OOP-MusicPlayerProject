@@ -22,10 +22,19 @@ public interface AudioObject {
      */
     MyConst.SourceType getType();
 
+    /**
+     * @return owner of audio source's name
+     */
     String getOwner();
 
+    /**
+     * Increment number of listens.
+     */
     void incrementListened();
 
+    /**
+     * @return number of listens.
+     */
     int getListened();
 
 }

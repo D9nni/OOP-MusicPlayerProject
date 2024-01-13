@@ -7,7 +7,7 @@ import app.utils.MyConst;
 import java.util.ArrayList;
 
 @Getter
-public class Playlist extends AudioCollection {
+public final class Playlist extends AudioCollection {
     private final String name;
     private final User owner;
     private final int creationTime;
@@ -130,7 +130,8 @@ public class Playlist extends AudioCollection {
      * @param username the username who started following the playlist
      */
     public void follow(final String username) {
-        String message = "Follow Playlist: " + username + " started following " + name + " playlist.";
+        String message = "Follow Playlist: " + username + " started following "
+                + name + " playlist.";
         owner.receiveNotification(message);
         followers++;
     }

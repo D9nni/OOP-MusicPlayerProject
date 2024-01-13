@@ -14,7 +14,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class UserIncome {
+public final class UserIncome {
     private final User user;
     private final ArrayList<Merch> boughtMerch = new ArrayList<>();
     @Getter
@@ -33,6 +33,12 @@ public class UserIncome {
         this.user = user;
     }
 
+    /**
+     * Buy merch. Artist receives the money for it.
+     * @param objectNode for output
+     * @param merchName name of desired product
+     */
+
     public void buyMerch(final ObjectNode objectNode, final String merchName) {
         GeneralUser pageOwner = user.getCurrentPage().getOwner();
         if (pageOwner.getType() == MyConst.UserType.ARTIST) {
@@ -47,7 +53,8 @@ public class UserIncome {
             if (selectedMerch != null) {
                 boughtMerch.add(selectedMerch);
                 artist.getIncome().sellMerch(selectedMerch);
-                objectNode.put("message", user.getUsername() + " has added new merch successfully.");
+                objectNode.put("message", user.getUsername()
+                        + " has added new merch successfully.");
             } else {
                 objectNode.put("message", "The merch " + merchName + " doesn't exist.");
             }
@@ -56,6 +63,10 @@ public class UserIncome {
         }
     }
 
+    /**
+     * Display merch bought by user.
+     * @param objectNode for output
+     */
     public void seeMerch(final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayNode merchNode = objectMapper.createArrayNode();
@@ -65,6 +76,10 @@ public class UserIncome {
         objectNode.set("result", merchNode);
     }
 
+    /**
+     * Buy premium subscription.
+     * @param objectNode for output
+     */
     public void buyPremium(final ObjectNode objectNode) {
         if (premium) {
             objectNode.put("message", user.getUsername() + " is already a premium user.");
@@ -73,22 +88,32 @@ public class UserIncome {
             premium = true;
             premiumSongs = new HashMap<>();
             premiumArtists = new HashMap<>();
-            objectNode.put("message", user.getUsername() + " bought the subscription successfully.");
+            objectNode.put("message", user.getUsername()
+                    + " bought the subscription successfully.");
         }
     }
 
+    /**
+     * Cancel premium subscription. Songs listened while being premium are paid.
+     * @param objectNode for output
+     */
     public void cancelPremium(final ObjectNode objectNode) {
         if (premium) {
             paySongs();
             premium = false;
             premiumSongs = new HashMap<>();
             premiumArtists = new HashMap<>();
-            objectNode.put("message", user.getUsername() + " cancelled the subscription successfully.");
+            objectNode.put("message", user.getUsername()
+                    + " cancelled the subscription successfully.");
         } else {
             objectNode.put("message", user.getUsername() + " is not a premium user.");
         }
     }
 
+    /**
+     * This function adds the song to a list in order to receive money at a certain moment.
+     * @param song the song
+     */
     public void updateMonetizationSongs(final Song song) {
         if (premium) {
                 premiumSongs.put(song, premiumSongs.getOrDefault(song, 0) + 1);
@@ -105,6 +130,11 @@ public class UserIncome {
         }
     }
 
+    /**
+     * If the artist of a song exists as instance, this function is used to retain his name
+     * for further calculating his revenue.
+     * @param artist the artist whose song was played
+     */
     public void updateMonetizationArtists(final Artist artist) {
         if (premium) {
             premiumArtists.put(artist, premiumArtists.getOrDefault(artist, 0) + 1);
@@ -113,6 +143,10 @@ public class UserIncome {
         }
     }
 
+    /**
+     * Pay all songs. For non-premium users when an ad is played, for premium
+     * when he ends listening or cancel subscription.
+     */
     public void paySongs() {
         if (!premium) {
             if (lastAd != null) {

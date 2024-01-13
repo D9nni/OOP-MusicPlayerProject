@@ -6,7 +6,7 @@ import app.utils.MyConst;
 
 import java.util.ArrayList;
 @Getter
-public class Album extends AudioCollection {
+public final class Album extends AudioCollection {
     private final String name;
     private final String artist;
     private final int releaseYear;
@@ -28,16 +28,6 @@ public class Album extends AudioCollection {
         library.getSongs().addAll(songs);
     }
 
-    /**
-     * Check if album contains a song
-     * @param song a song
-     * @return OLD: true if album has a song with name equal to given name
-     */
-    public boolean containsSongByNameAndArtist(final Song song) {
-        String songName1 = song.getName();
-        String artist1 = song.getArtist();
-        return songs.stream().anyMatch(obj -> obj.getName().equals(songName1) && obj.getArtist().equals(artist1));
-    }
 
     /**
      * Calculate total number of likes
@@ -82,6 +72,10 @@ public class Album extends AudioCollection {
         return MyConst.SourceType.ALBUM;
     }
 
+    /**
+     *
+     * @return album owner (artist's name)
+     */
     @Override
     public String getOwner() {
         return getArtist();

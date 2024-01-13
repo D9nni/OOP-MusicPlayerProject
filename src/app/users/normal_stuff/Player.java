@@ -12,7 +12,12 @@ import app.audio.Song;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.LinkedHashMap;
 
 public class Player {
     @Getter
@@ -121,7 +126,8 @@ public class Player {
             playerSeek = getPlayerSeek();
             playerSeek = playerSeek + givenTime;
             if (playerSeek >= duration) {
-                removeAds(); // remove ads from previous play that were put in trackList
+                // remove ads from previous play that were put in trackList and update
+                removeAds(playerSeek / duration);
                 playerSeek = playerSeek % duration;
             }
             setTrackSeek(true);
@@ -151,7 +157,7 @@ public class Player {
         return sum + trackSeek;
     }
 
-    private void setTrackSeek(boolean update) {
+    private void setTrackSeek(final boolean update) {
         int i = 0;
         int sum = 0;
         if (playerSeek == 0) {
@@ -177,6 +183,11 @@ public class Player {
         user.getStats().updateStats(track, source);
     }
 
+    /**
+     * Load a source into player. No output is provided.
+     * @param selectedObject the source
+     * @param timestamp for updating the player
+     */
     public void loadSource(final AudioObject selectedObject, final int timestamp) {
         unload(timestamp);
         source = selectedObject;
@@ -538,7 +549,7 @@ public class Player {
         this.user = user;
     }
 
-    private Integer generateNextId(final int id, boolean update) {
+    private Integer generateNextId(final int id, final boolean update) {
         int nextId = -1;
         int i = shuffleIndexes.indexOf(id);
         if (i + 1 < trackList.size()) {
@@ -590,7 +601,7 @@ public class Player {
         shuffleIndexes.add(trackId + 1, trackId + 1);
     }
 
-    private void removeAds() {
+    private void removeAds(final int numberOfRepeats) {
         LinkedHashMap<AudioFile, Integer> adsHashMap = new LinkedHashMap<>();
         int size = trackList.size();
         for (int i = size - 1; i >= 0; i--) {
@@ -608,9 +619,21 @@ public class Player {
             }
             shuffleIndexes.remove(adIndex);
         }
+        int rep = numberOfRepeats;
+        while (rep > 0) {
+            for (AudioFile track1 : trackList) {
+                user.getStats().updateStats(track1, source);
+            }
+            rep--;
+        }
     }
 
-
+    /**
+     * Insert an ad after current track.
+     * @param timestamp to update the current track
+     * @param objectNode for output
+     * @param ad the ad
+     */
     public void adBreak(final int timestamp, final ObjectNode objectNode, final Song ad) {
         if (!isPlaying(timestamp)) {
             objectNode.put("message", user.getUsername() + " is not playing any music.");

@@ -9,7 +9,7 @@ import lombok.Getter;
 
 
 public final class Admin {
-    @Getter // this getter is used where library is needed to avoid giving it as a parameter everywhere
+    @Getter // this getter is used where library is needed to avoid giving it as a parameter
     private static Library library;
 
     private Admin() {
@@ -236,6 +236,12 @@ public final class Admin {
         }
     }
 
+    /**
+     * Try to show stats for a user.
+     * Will succeed only if user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryWrapped(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getGeneralUser(username);
@@ -248,7 +254,12 @@ public final class Admin {
             generalUser.getStats().wrapped(objectNode);
         }
     }
-
+    /**
+     * Try to buy merch.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryBuyMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -259,7 +270,12 @@ public final class Admin {
             user.getIncome().buyMerch(objectNode, cmd.getName());
         }
     }
-
+    /**
+     * Try to see merch.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void trySeeMerch(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -270,7 +286,12 @@ public final class Admin {
             user.getIncome().seeMerch(objectNode);
         }
     }
-
+    /**
+     * Try to buy premium.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryBuyPremium(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -282,7 +303,12 @@ public final class Admin {
             user.getIncome().buyPremium(objectNode);
         }
     }
-
+    /**
+     * Try to cancel premium.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryCancelPremium(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -294,7 +320,12 @@ public final class Admin {
             user.getIncome().cancelPremium(objectNode);
         }
     }
-
+    /**
+     * Try to insert ad break into player.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryAdBreak(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -302,12 +333,18 @@ public final class Admin {
             objectNode.put("message", " The username " + username + " doesn't exist.");
         } else {
             User user = (User) generalUser;
-            Song ad = new Song(library.getSongs().get(0)); //copy the ad to prevent data race between users
+            //copy the ad to prevent data race between users
+            Song ad = new Song(library.getSongs().get(0));
             ad.setPrice(cmd.getPrice());
             user.getPlayer().adBreak(cmd.getTimestamp(), objectNode, ad);
         }
     }
-
+    /**
+     * Try to subscribe.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void trySubscribe(final Command cmd, final ObjectNode objectNode) {
         String username = cmd.getUsername();
         GeneralUser generalUser = library.getUserOfType(username, MyConst.UserType.USER);
@@ -319,7 +356,12 @@ public final class Admin {
             objectNode.put("message", message);
         }
     }
-
+    /**
+     * Try to update recommendations.
+     * Will succeed only if normal user exists.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public static void tryUpdateRecommendations(final Command cmd, final ObjectNode objectNode) {
         GeneralUser genUser = getUserOfTypeOrWriteMessage(MyConst.UserType.USER, cmd, objectNode);
         if (genUser != null) {

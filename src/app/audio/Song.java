@@ -94,6 +94,10 @@ public final class Song extends AudioFile {
         }
     }
 
+    /**
+     * Add revenue to song (for statistics).
+     * @param money the money earned by song
+     */
     public void addRevenue(final Double money) {
         revenue += money;
     }
@@ -101,10 +105,6 @@ public final class Song extends AudioFile {
     public String getName() {
         return songInput.getName();
     }
-
-    /**
-     * @return duration
-     */
 
     @Override
     public Integer getDuration() {

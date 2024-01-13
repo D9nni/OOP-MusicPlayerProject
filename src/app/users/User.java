@@ -2,7 +2,10 @@ package app.users;
 
 import app.analytics.monetization.UserIncome;
 import app.analytics.wrapped.UserStats;
-import app.audio.*;
+import app.audio.Playlist;
+import app.audio.Song;
+import app.audio.AudioObject;
+import app.audio.Library;
 import app.commands.Command;
 import app.observer.Observable;
 import app.pages.Page;
@@ -20,7 +23,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Getter
-public class User extends GeneralUser implements Observable {
+public final class User extends GeneralUser implements Observable {
     private final String username;
     private final int age;
     private final String city;
@@ -315,7 +318,8 @@ public class User extends GeneralUser implements Observable {
                 if (player.isPlaying(cmd.getTimestamp())) {
                     if (player.getSource().getType() == MyConst.SourceType.PODCAST) {
                         String hostName = player.getSource().getOwner();
-                        GeneralUser host = Admin.getLibrary().getUserOfType(hostName, MyConst.UserType.HOST);
+                        GeneralUser host = Admin.getLibrary().getUserOfType(
+                                hostName, MyConst.UserType.HOST);
                         if (host == null) {
                             success = false;
                         } else {
@@ -332,7 +336,8 @@ public class User extends GeneralUser implements Observable {
                 if (player.isPlaying(cmd.getTimestamp())) {
                     if (player.getSource().getType() != MyConst.SourceType.PODCAST) {
                         String artistName = player.getSource().getOwner();
-                        GeneralUser artist = Admin.getLibrary().getUserOfType(artistName, MyConst.UserType.ARTIST);
+                        GeneralUser artist = Admin.getLibrary().getUserOfType(
+                                artistName, MyConst.UserType.ARTIST);
                         if (artist == null) {
                             success = false;
                         } else {
@@ -350,20 +355,27 @@ public class User extends GeneralUser implements Observable {
                 break;
         }
         if (!success) {
-            objectNode.put("message", username + " is trying to access a non-existent page.");
+            objectNode.put("message", username
+                    + " is trying to access a non-existent page.");
         } else {
-            objectNode.put("message", username + " accessed " + nextPage + " successfully.");
+            objectNode.put("message", username
+                    + " accessed " + nextPage + " successfully.");
         }
 
     }
 
+    /**
+     * Subscribe to the artist/host whose page is selected currently.
+     * @return the message to be printed
+     */
     public String subscribe() {
         GeneralUser channel = getCurrentPage().getOwner();
         return switch (channel.getType()) {
             case ARTIST, HOST -> {
                 if (channel.getSubscriptions().contains(this)) {
                     removeSubscription(channel);
-                    yield username + " unsubscribed from " + channel.getUsername() + " successfully.";
+                    yield username + " unsubscribed from " + channel.getUsername()
+                            + " successfully.";
                 } else {
                     addSubscription(channel);
                     yield username + " subscribed to " + channel.getUsername() + " successfully.";
@@ -373,6 +385,10 @@ public class User extends GeneralUser implements Observable {
         };
     }
 
+    /**
+     * Print received notifications. Delete them after.
+     * @param objectNode for output
+     */
     public void getNotifications(final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode1;
@@ -388,44 +404,68 @@ public class User extends GeneralUser implements Observable {
         objectNode.set("notifications", allNotifications);
     }
 
+    /**
+     * Change page to next from history.
+     * @param objectNode for output
+     */
     public void nextPage(final ObjectNode objectNode) {
         if (currentPageId == pageHistory.size() - 1) {
             objectNode.put("message", "There are no pages left to go forward.");
         } else {
             currentPageId++;
             setCurrentPage(pageHistory.get(currentPageId));
-            objectNode.put("message", "The user " + username + " has navigated successfully to the next page.");
+            objectNode.put("message", "The user " + username
+                    + " has navigated successfully to the next page.");
         }
 
     }
 
+    /**
+     * Change page to previous from history.
+     * @param objectNode for output
+     */
     public void previousPage(final ObjectNode objectNode) {
         if (currentPageId == 0) {
             objectNode.put("message", "There are no pages left to go back.");
         } else {
             currentPageId--;
             setCurrentPage(pageHistory.get(currentPageId));
-            objectNode.put("message", "The user " + username + " has navigated successfully to the previous page.");
+            objectNode.put("message", "The user " + username
+                    + " has navigated successfully to the previous page.");
         }
 
     }
 
+    /**
+     * Update recommendations.
+     * Valid types: random_song, random_playlist, fans_playlist.
+     * @param cmd for data
+     * @param objectNode for output
+     */
     public void updateRecommendations(final Command cmd, final ObjectNode objectNode) {
         player.isPlaying(cmd.getTimestamp());
 
         boolean success = switch (cmd.getRecommendationType()) {
-            case "random_song" -> homePage.randomSongRec(player.getTrackSeek(), (Song) player.getTrack());
+            case "random_song" -> homePage.randomSongRec(player.getTrackSeek(),
+                    (Song) player.getTrack());
             case "random_playlist" -> homePage.randomPlaylistRec(cmd.getTimestamp());
-            case "fans_playlist" -> homePage.fansPlaylistsRec(player.getSource().getOwner(), cmd.getTimestamp());
+            case "fans_playlist" -> homePage.fansPlaylistsRec(player.getSource().getOwner(),
+                    cmd.getTimestamp());
             default -> false;
         };
         if (success) {
-            objectNode.put("message", "The recommendations for user " + username + " have been updated successfully.");
+            objectNode.put("message", "The recommendations for user "
+                    + username + " have been updated successfully.");
         } else {
             objectNode.put("message", "No new recommendations were found");
         }
     }
 
+    /**
+     * Load last recommendation in player.
+     * @param cmd for timestamp
+     * @param objectNode for output
+     */
     public void loadRecommendations(final Command cmd, final ObjectNode objectNode) {
         if (!connected) {
             standardOfflineCommand("loadRecommendations", objectNode);

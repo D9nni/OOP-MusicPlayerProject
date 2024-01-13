@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 
 @Getter
-public class Podcast extends AudioCollection {
+public final class Podcast extends AudioCollection {
     private final String name;
     private final String owner;
     private final ArrayList<Episode> episodes = new ArrayList<>();

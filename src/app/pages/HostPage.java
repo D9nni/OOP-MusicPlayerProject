@@ -2,18 +2,17 @@ package app.pages;
 
 import app.audio.Podcast;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import app.users.GeneralUser;
 import app.users.Host;
 import app.users.host_stuff.Announcement;
 import lombok.Getter;
 
 import java.util.ArrayList;
 
+@Getter
 public final class HostPage implements Page {
-    @Getter
     private final Host owner;
 
-    public HostPage(Host owner) {
+    public HostPage(final Host owner) {
         this.owner = owner;
     }
 

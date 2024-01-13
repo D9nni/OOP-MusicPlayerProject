@@ -25,15 +25,26 @@ public abstract class AudioFile implements AudioObject {
     @Override
     public abstract MyConst.SourceType getType();
 
+    /**
+     * Increment number of listens.
+     */
     @Override
     public void incrementListened() {
         listened++;
     }
 
+    /**
+     * @return number of listens
+     */
     @Override
     public int getListened() {
         return listened;
     }
+
+    /**
+     * Check if a song is Ad
+     * @return true if ad
+     */
 
     public abstract boolean isAd();
 }

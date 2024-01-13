@@ -1,6 +1,5 @@
 package app.commands;
 
-import app.analytics.wrapped.UserStats;
 import app.audio.Library;
 import app.users.GeneralUser;
 import app.users.User;

@@ -11,8 +11,14 @@ import app.users.User;
 import app.utils.MyConst;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
+import java.util.Random;
+import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
 
 public final class HomePage implements Page {
     @Getter
@@ -25,7 +31,7 @@ public final class HomePage implements Page {
     public static final Integer NR_TOP_GENRES = 3;
     private static final Integer MINIMUM_TRACK_SEEK_FOR_SEED = 30;
 
-    public HomePage(User owner) {
+    public HomePage(final User owner) {
 
         this.owner = owner;
     }
@@ -56,7 +62,14 @@ public final class HomePage implements Page {
 
     }
 
-    public boolean randomSongRec(int trackSeek, Song track) {
+    /**
+     * Generate random Song recommendation based on trackSeek and add it to list.
+     * Generates a song from same genre as track.
+     * @param trackSeek for random seed. Minimum 30 secs accepted.
+     * @param track for getting the genre
+     * @return true if new recommendation was added.
+     */
+    public boolean randomSongRec(final int trackSeek, final Song track) {
         if (trackSeek < MINIMUM_TRACK_SEEK_FOR_SEED) {
             return false;
         }
@@ -78,7 +91,15 @@ public final class HomePage implements Page {
         return true;
     }
 
-    public boolean randomPlaylistRec(int timestamp) {
+    /**
+     * Generate random Playlist by finding top 3 genres of songs contained
+     * in likedSongs, createdPlaylists, followedPlaylists.
+     * After sorting the genres and finding top 3, the new playlist
+     * contains top 5 songs from first, 3 from second, 2 from third genre.
+     * @param timestamp to set the creation time for the playlist
+     * @return true if new recommendation was added
+     */
+    public boolean randomPlaylistRec(final int timestamp) {
         ArrayList<Song> allSongs = new ArrayList<>(owner.getLikedSongs());
         ArrayList<Playlist> allPlaylists = new ArrayList<>(owner.getPlaylists());
         allPlaylists.addAll(owner.getFollowedPlaylists());
@@ -98,8 +119,8 @@ public final class HomePage implements Page {
             genres.put(song.getGenre(), genreSongs);
         }
         Comparator<Map.Entry<String, ArrayList<Song>>> genreComparator = Comparator
-                .<Map.Entry<String, ArrayList<Song>>, Integer>comparing(entry -> entry.getValue().size(),
-                        Comparator.reverseOrder())
+                .<Map.Entry<String, ArrayList<Song>>, Integer>comparing(
+                        entry -> entry.getValue().size(), Comparator.reverseOrder())
                 .thenComparing(Map.Entry::getKey);
         LinkedHashMap<String, ArrayList<Song>> sortedGenres = genres.entrySet()
                 .stream()
@@ -128,8 +149,18 @@ public final class HomePage implements Page {
 
     }
 
-    public boolean fansPlaylistsRec(String artistName, int timestamp) {
-        Artist artist = (Artist) Admin.getLibrary().getUserOfType(artistName, MyConst.UserType.ARTIST);
+    /**
+     * Generate a playlist based on the artist whose song is currently loaded in player.
+     * The playlist contains top 5 songs listened by top 5 fans of the artist.
+     * The songs are sorted descending by number of likes then put in a playlist.
+     * The playlist is added to user's recommendations with name "Fan Club Recommendation".
+     * @param artistName name of the artist
+     * @param timestamp to set the creation time for new playlist
+     * @return true if new recommendation was added
+     */
+    public boolean fansPlaylistsRec(final String artistName, final int timestamp) {
+        Artist artist = (Artist) Admin.getLibrary().getUserOfType(artistName,
+                MyConst.UserType.ARTIST);
         assert artist != null;
         ArrayList<User> fans = artist.getStats().getTop5Fans();
         ArrayList<Song> allSongs = new ArrayList<>();

@@ -4,7 +4,6 @@ import app.analytics.wrapped.Wrapped;
 import app.audio.Library;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import app.commands.Command;
-import com.sun.tools.attach.AgentInitializationException;
 import lombok.Getter;
 import app.pages.Page;
 import app.utils.MyConst;
@@ -18,7 +17,7 @@ public abstract class GeneralUser {
     private final String city;
     private final MyConst.UserType type;
     private Page currentPage;
-    //for normal user, these are his subscriptions, for artist and host his subscribers
+    //for normal user, these are subscriptions, for artist and host subscribers
     private final ArrayList<GeneralUser> subscriptions = new ArrayList<>();
 
     public GeneralUser(final String username, final String city,
@@ -100,13 +99,30 @@ public abstract class GeneralUser {
     public void setCurrentPage(final Page currentPage) {
         this.currentPage = currentPage;
     }
-    public void addSubscription(final GeneralUser subscriber) {
-        subscriptions.add(subscriber);
-        subscriber.getSubscriptions().add(this);
+
+    /**
+     * Add a channel to user's subscriptions and add user to channel's subscribers.
+     * Method called by normal user for subscribing to artist/host.
+     * @param channel the channel
+     */
+    public void addSubscription(final GeneralUser channel) {
+        subscriptions.add(channel);
+        channel.getSubscriptions().add(this);
     }
-    public void removeSubscription(final GeneralUser subscriber) {
-        subscriptions.remove(subscriber);
-        subscriber.getSubscriptions().remove(this);
+
+    /**
+     * Remove the subscription from user's subscriptions and remove user from channel.
+     * Method called by normal user to unsubscribe.
+     * @param channel the channel
+     */
+    public void removeSubscription(final GeneralUser channel) {
+        subscriptions.remove(channel);
+        channel.getSubscriptions().remove(this);
     }
+
+    /**
+     * Get the stats page for user.
+     * @return the stats
+     */
     public abstract Wrapped getStats();
 }

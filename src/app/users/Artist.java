@@ -7,7 +7,7 @@ import app.audio.Song;
 import app.audio.Playlist;
 import app.audio.AudioFile;
 import app.audio.Library;
-import app.observer.Observator;
+import app.observer.Observer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,7 +23,7 @@ import app.utils.ValidateInput;
 import java.util.ArrayList;
 
 @Getter
-public class Artist extends GeneralUser implements Observator {
+public final class Artist extends GeneralUser implements Observer {
     private final ArrayList<Album> albums = new ArrayList<>();
     private final ArtistPage artistPage = new ArtistPage(this);
     private final ArrayList<ArtistEvent> artistEvents = new ArrayList<>();
@@ -82,7 +82,7 @@ public class Artist extends GeneralUser implements Observator {
                         library);
                 albums.add(newAlbum);
                 String albumNotification = ALBUM_NOTIFICATION + getUsername() + ".";
-                sendNotification(albumNotification);
+                sendNotifications(albumNotification);
                 objectNode.put("message", cmd.getUsername()
                         + " has added new album successfully.");
             }
@@ -181,7 +181,7 @@ public class Artist extends GeneralUser implements Observator {
                         cmd.getDescription(), cmd.getDate());
                 artistEvents.add(artistEvent);
                 String eventNotification = EVENT_NOTIFICATION + getUsername() + ".";
-                sendNotification(eventNotification);
+                sendNotifications(eventNotification);
                 objectNode.put("message", super.getUsername()
                         + " has added new event successfully.");
             }
@@ -226,7 +226,7 @@ public class Artist extends GeneralUser implements Observator {
                 Merch merch1 = new Merch(cmd.getName(), cmd.getDescription(), cmd.getPrice());
                 merch.add(merch1);
                 String merchNotification = MERCH_NOTIFICATION + getUsername() + ".";
-                sendNotification(merchNotification);
+                sendNotifications(merchNotification);
                 objectNode.put("message", super.getUsername()
                         + " has added new merchandise successfully.");
             }
@@ -262,18 +262,18 @@ public class Artist extends GeneralUser implements Observator {
      * @param source the album checked
      * @return true if he has
      */
-    public boolean hasAlbum(final Album source) {
-        return albums.stream().anyMatch(obj -> obj.equals(source));
+    private boolean hasAlbum(final Album source) {
+        return albums.contains(source);
     }
 
     /**
-     * Check if artist has a song with this name in his albums.
+     * Check if artist has the song on any album
      * @param song a song
      * @return true if he has
      */
-    public boolean hasSong(final Song song) {
+    private boolean hasSong(final Song song) {
         for (Album album : albums) {
-            if (album.containsSongByNameAndArtist(song)) {
+            if (album.getSongs().contains(song)) {
                 return true;
             }
         }
@@ -307,7 +307,7 @@ public class Artist extends GeneralUser implements Observator {
                 // check if someone is playing one of the artist's albums
                 if (sourceType == MyConst.SourceType.ALBUM) {
                     Album source = (Album) user.getPlayer().getSource();
-                    if (this.hasAlbum(source)) {
+                    if (hasAlbum(source)) {
                         canBeDeleted = false;
                         break;
                     }
@@ -315,7 +315,7 @@ public class Artist extends GeneralUser implements Observator {
                     if (user.getPlayer().getTrack().getType() == MyConst.SourceType.SONG) {
                         Song track = (Song) user.getPlayer().getTrack();
                         //check if someone is playing one of artist's songs
-                        if (this.hasSong(track)) {
+                        if (hasSong(track)) {
                             canBeDeleted = false;
                             break;
                         }
@@ -325,7 +325,7 @@ public class Artist extends GeneralUser implements Observator {
         }
         if (canBeDeleted) {
             // delete all songs
-            for (Album album : this.getAlbums()) {
+            for (Album album : albums) {
                 for (Song song : album.getSongs()) {
                     song.delete(library);
                 }
@@ -336,7 +336,7 @@ public class Artist extends GeneralUser implements Observator {
     }
 
     @Override
-    public void sendNotification(final String message) {
+    public void sendNotifications(final String message) {
         for (GeneralUser genUser : getSubscriptions()) {
             User user = (User) genUser;
             user.receiveNotification(message);

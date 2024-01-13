@@ -20,9 +20,9 @@ import java.util.TreeSet;
 
 @Getter
 public final class Library {
-    private ArrayList<Song> songs = new ArrayList<>();
+    private final ArrayList<Song> songs = new ArrayList<>();
     private final ArrayList<Podcast> podcasts = new ArrayList<>();
-    private ArrayList<User> users = new ArrayList<>();
+    private final ArrayList<User> users = new ArrayList<>();
     private final ArrayList<Artist> artists = new ArrayList<>();
     private final ArrayList<Host> hosts = new ArrayList<>();
 
@@ -177,6 +177,11 @@ public final class Library {
         objectNode.set("result", allUsers);
     }
 
+    /**
+     * Statistic about monetization printed after all commands were run.
+     * For each artist it prints his most popular content list.
+     * @return output node
+     */
     public ObjectNode endProgram() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
@@ -186,7 +191,7 @@ public final class Library {
             user.getIncome().paySongs();
         }
         for (Artist artist : artists) {
-            if (artist.getStats().hasFans() || artist.getIncome().getMerchRevenue() > 0.0) {
+            if (!artist.getStats().isEmpty() || artist.getIncome().getMerchRevenue() > 0.0) {
                 artistIncomes.add(artist.getIncome());
             }
         }
@@ -237,6 +242,12 @@ public final class Library {
         return null;
     }
 
+    /**
+     * Get a user of a specific type.
+     * @param name username
+     * @param type desired type
+     * @return user instance or null
+     */
     public GeneralUser getUserOfType(final String name, final MyConst.UserType type) {
         switch (type) {
             case USER -> {
@@ -259,6 +270,9 @@ public final class Library {
                         return host;
                     }
                 }
+            }
+            default -> {
+                return null;
             }
         }
         return null;
