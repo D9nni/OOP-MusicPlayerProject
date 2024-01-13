@@ -336,7 +336,7 @@ public class Artist extends GeneralUser implements Observator {
     }
 
     @Override
-    public void sendNotification(String message) {
+    public void sendNotification(final String message) {
         for (GeneralUser genUser : getSubscriptions()) {
             User user = (User) genUser;
             user.receiveNotification(message);

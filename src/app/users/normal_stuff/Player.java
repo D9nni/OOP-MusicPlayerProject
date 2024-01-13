@@ -2,7 +2,6 @@ package app.users.normal_stuff;
 
 
 import app.commands.Command;
-import app.users.Admin;
 import lombok.Getter;
 import app.utils.MyConst;
 import app.users.User;
@@ -23,6 +22,7 @@ public class Player {
     private final User user;
     @Getter
     private AudioFile track = null;
+    private AudioFile advertisement = null;
     private ArrayList<AudioFile> trackList;
     private int trackId = 0;
     @Getter
@@ -179,7 +179,7 @@ public class Player {
         user.getStats().updateStats(track, source);
     }
 
-    public void loadSource(AudioObject selectedObject, int timestamp) {
+    public void loadSource(final AudioObject selectedObject, final int timestamp) {
         unload(timestamp);
         source = selectedObject;
         sourceType = selectedObject.getType();
@@ -532,7 +532,7 @@ public class Player {
         objectNode.set("stats", statsNode);
     }
 
-    public Player(User user) {
+    public Player(final User user) {
         this.user = user;
     }
 
@@ -548,7 +548,7 @@ public class Player {
         return nextId;
     }
 
-    private Integer generatePrevId(final int id, boolean update) {
+    private Integer generatePrevId(final int id, final boolean update) {
         int prevId = -1;
         int i = shuffleIndexes.indexOf(id);
         if (i - 1 >= 0) {
@@ -577,7 +577,8 @@ public class Player {
         return null;
     }
 
-    private void insertAd(Song ad) {
+    private void insertAd(final Song ad) {
+       // advertisement = (AudioFile) ad;
         int size = trackList.size();
         for (int i = 0; i < size; i++) {
             if (shuffleIndexes.get(i) > trackId) {
@@ -590,7 +591,7 @@ public class Player {
 
     }
 
-    public void adBreak(int timestamp, ObjectNode objectNode, Song ad) {
+    public void adBreak(final int timestamp, final ObjectNode objectNode, final Song ad) {
         if (!isPlaying(timestamp)) {
             objectNode.put("message", user.getUsername() + " is not playing any music.");
         } else {

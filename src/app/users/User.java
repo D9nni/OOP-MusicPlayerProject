@@ -2,7 +2,6 @@ package app.users;
 
 import app.analytics.monetization.UserIncome;
 import app.analytics.wrapped.UserStats;
-import app.analytics.wrapped.Wrapped;
 import app.audio.*;
 import app.commands.Command;
 import app.observer.Observable;
@@ -38,7 +37,7 @@ public class User extends GeneralUser implements Observable {
     private final UserStats stats = new UserStats(this);
     private final UserIncome income = new UserIncome(this);
     private ArrayList<String> notifications = new ArrayList<>();
-    private ArrayList<Page> pageHistory = new ArrayList<>();
+    private final ArrayList<Page> pageHistory = new ArrayList<>();
     private int currentPageId;
 
 
@@ -360,22 +359,18 @@ public class User extends GeneralUser implements Observable {
 
     public String subscribe() {
         GeneralUser channel = getCurrentPage().getOwner();
-        String message = "";
-        switch (channel.getType()) {
+        return switch (channel.getType()) {
             case ARTIST, HOST -> {
                 if (channel.getSubscriptions().contains(this)) {
                     removeSubscription(channel);
-                    message = username + " unsubscribed from " + channel.getUsername() + " successfully.";
+                    yield username + " unsubscribed from " + channel.getUsername() + " successfully.";
                 } else {
                     addSubscription(channel);
-                    message = username + " subscribed to " + channel.getUsername() + " successfully.";
+                     yield username + " subscribed to " + channel.getUsername() + " successfully.";
                 }
             }
-            case USER -> {
-                message = "To subscribe you need to be on the page of an artist or host.";
-            }
-        }
-        return message;
+            case USER -> "To subscribe you need to be on the page of an artist or host.";
+        };
     }
 
     public void getNotifications(final ObjectNode objectNode) {
@@ -502,7 +497,7 @@ public class User extends GeneralUser implements Observable {
     }
 
     @Override
-    public void receiveNotification(String message) {
+    public void receiveNotification(final String message) {
         notifications.add(message);
     }
 }

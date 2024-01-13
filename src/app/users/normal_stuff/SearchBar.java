@@ -32,7 +32,7 @@ public class SearchBar {
     @Getter
     private GeneralUser selectedUser = null;
 
-    public SearchBar(User user) {
+    public SearchBar(final User user) {
 
         this.user = user;
     }

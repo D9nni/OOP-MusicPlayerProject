@@ -18,6 +18,7 @@ public abstract class GeneralUser {
     private final String city;
     private final MyConst.UserType type;
     private Page currentPage;
+    //for normal user, these are his subscriptions, for artist and host his subscribers
     private final ArrayList<GeneralUser> subscriptions = new ArrayList<>();
 
     public GeneralUser(final String username, final String city,
@@ -99,11 +100,11 @@ public abstract class GeneralUser {
     public void setCurrentPage(final Page currentPage) {
         this.currentPage = currentPage;
     }
-    public void addSubscription(GeneralUser subscriber) {
+    public void addSubscription(final GeneralUser subscriber) {
         subscriptions.add(subscriber);
         subscriber.getSubscriptions().add(this);
     }
-    public void removeSubscription(GeneralUser subscriber) {
+    public void removeSubscription(final GeneralUser subscriber) {
         subscriptions.remove(subscriber);
         subscriber.getSubscriptions().remove(this);
     }

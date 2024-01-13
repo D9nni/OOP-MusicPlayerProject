@@ -69,6 +69,7 @@ public class UserIncome {
         if (premium) {
             objectNode.put("message", user.getUsername() + " is already a premium user.");
         } else {
+            paySongs();
             premium = true;
             premiumSongs = new HashMap<>();
             premiumArtists = new HashMap<>();
@@ -123,7 +124,8 @@ public class UserIncome {
 
     }
 
-    private void paySongsHelper(final Double totalMoney, final HashMap<Song, Integer> songsList, final HashMap<Artist, Integer> artistsList) {
+    private void paySongsHelper(final Double totalMoney, final HashMap<Song, Integer> songsList,
+                                final HashMap<Artist, Integer> artistsList) {
         int totalSongs = 0;
         for (Song song : songsList.keySet()) {
             totalSongs += songsList.get(song);
